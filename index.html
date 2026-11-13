@@ -557,7 +557,7 @@
     <div class="top-actions-container">
         <div class="image-upload-container" title="تحديث ملف الإكسيل">
             <span class="plus-icon" id="plusSign">+</span>
-            <input type="file" accept=".xlsx, .xls" id="excelInput" onchange="importEmployeeExcel(event)">
+            <input type="file" accept=".xlsx, .xls" id="excelInput" onchange="importEmployeeExcel(event)" autocomplete="off">
         </div>
     </div>
     <div id="fileStatus">جاري التحقق من بيانات العاملين...</div>
@@ -602,11 +602,11 @@
             <div class="section-title">ثانياً: الاستحقاقات ومدة العمل الثابتة</div>
             <div class="input-group">
                 <label>إجمالي الاستحقاقات (جنية):</label>
-                <input type="number" id="grossSalary" value="" placeholder="أدخل الاستحقاقات">
+                <input type="number" id="grossSalary" value="" placeholder="أدخل الاستحقاقات" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل الشهرية (ثابتة):</label>
-                <input type="number" id="attendanceDays" value="30" readonly style="background:#f1f5f9; color:#334155; font-weight:bold;">
+                <input type="number" id="attendanceDays" value="30" readonly style="background:#f1f5f9; color:#334155; font-weight:bold;" autocomplete="off">
             </div>
         </div>
 
@@ -625,35 +625,35 @@
             </div>
             <div class="input-group" id="s1_disabilityGroup" style="display: none; margin-top: 10px;">
                 <label>إعفاء الإعاقة (جنية - قابل للتعديل):</label>
-                <input type="number" id="s1_disabilityEx" value="0" placeholder="833.33">
+                <input type="number" id="s1_disabilityEx" value="0" placeholder="833.33" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>العلاوة المنضمة (جنية):</label>
-                <input type="number" id="allowance" value="" placeholder="0">
+                <input type="number" id="allowance" value="" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>التأمينات الاجتماعية (جنية):</label>
-                <input type="number" id="insurance" value="" placeholder="1670">
+                <input type="number" id="insurance" value="" placeholder="1670" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>قسط مدة سابقة (جنية):</label>
-                <input type="number" id="prevLoan" value="" placeholder="0">
+                <input type="number" id="prevLoan" value="" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>اشتراكات الصناديق (جنية):</label>
-                <input type="number" id="funds" value="" placeholder="0">
+                <input type="number" id="funds" value="" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الإعفاء الشخصي والشريحة الشهري:</label>
-                <input type="number" id="personalExemption" value="5000" readonly style="background:#f1f5f9;">
+                <input type="number" id="personalExemption" value="5000" readonly style="background:#f1f5f9;" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الأرباح (جنية):</label>
-                <input type="number" id="otherExemption" value="" placeholder="0">
+                <input type="number" id="otherExemption" value="" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>استقطاعات أخرى (سكر ومحمول وشهدا وغيره):</label>
-                <input type="number" id="otherDeductions" value="" placeholder="0">
+                <input type="number" id="otherDeductions" value="" placeholder="0" autocomplete="off">
             </div>
         </div>
 
@@ -726,15 +726,15 @@
             <div class="section-title">ثانياً: بيانات الوعاء والضريبة السابقة</div>
             <div class="input-group">
                 <label>آخر وعاء سابق (جنية):</label>
-                <input type="number" id="s2_prevBase" value="" placeholder="فارغ إن لم يوجد">
+                <input type="number" id="s2_prevBase" value="" placeholder="فارغ إن لم يوجد" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل الخاصة بأخر وعاء سابق (أيام):</label>
-                <input type="number" id="s2_prevWorkDays" value="" placeholder="فارغ إن لم يوجد">
+                <input type="number" id="s2_prevWorkDays" value="" placeholder="فارغ إن لم يوجد" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>ضريبة آخر وعاء سابق (جنية):</label>
-                <input type="number" id="s2_prevTax" value="" placeholder="فارغ إن لم يوجد">
+                <input type="number" id="s2_prevTax" value="" placeholder="فارغ إن لم يوجد" autocomplete="off">
             </div>
         </div>
 
@@ -742,11 +742,11 @@
             <div class="section-title">ثالثاً: الاستحقاقات (الفترة الحالية)</div>
             <div class="input-group">
                 <label>إجمالي الاستحقاقات (المرتب والبدلات والحوافز) (جنية):</label>
-                <input type="number" id="s2_gross" value="" placeholder="أدخل استحقاقات الفترة">
+                <input type="number" id="s2_gross" value="" placeholder="أدخل استحقاقات الفترة" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل بالفترة (أيام):</label>
-                <input type="number" id="s2_days" value="30" placeholder="0" oninput="updatePersonalEx()">
+                <input type="number" id="s2_days" value="30" placeholder="0" oninput="updatePersonalEx()" autocomplete="off">
             </div>
         </div>
 
@@ -765,31 +765,31 @@
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الإعفاء الشخصي بالفترة (جنية - منسب تلقائياً وقابل للتعديل):</label>
-                <input type="number" id="s2_personalEx" value="" placeholder="0" oninput="updateDisabilityEx()">
+                <input type="number" id="s2_personalEx" value="" placeholder="0" oninput="updateDisabilityEx()" autocomplete="off">
             </div>
             <div class="input-group" id="disabilityGroup" style="margin-top: 10px;">
                 <label>إعفاء الإعاقة (جنية - بحد أقصى 833.33):</label>
-                <input type="number" id="s2_disabilityEx" value="0" placeholder="0">
+                <input type="number" id="s2_disabilityEx" value="0" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>العلاوة المنضمة (جنية - منسبة تلقائياً وقابلة للتعديل):</label>
-                <input type="number" id="s2_allowance" value="" placeholder="0">
+                <input type="number" id="s2_allowance" value="" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>التأمينات الاجتماعية (جنية):</label>
-                <input type="number" id="s2_insurance" value="" placeholder="1670">
+                <input type="number" id="s2_insurance" value="" placeholder="1670" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>قسط مدة سابقة (جنية):</label>
-                <input type="number" id="s2_prevLoan" value="" placeholder="0">
+                <input type="number" id="s2_prevLoan" value="" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الصناديق الخاصة (مدخل يدوي):</label>
-                <input type="number" id="s2_funds" value="" placeholder="0">
+                <input type="number" id="s2_funds" value="" placeholder="0" autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الأرباح / إعفاءات أخرى (جنية):</label>
-                <input type="number" id="s2_profits" value="" placeholder="0">
+                <input type="number" id="s2_profits" value="" placeholder="0" autocomplete="off">
             </div>
         </div>
 
@@ -852,7 +852,7 @@
                 <div class="section-title" style="font-size:0.95rem; margin-bottom:0; border:none; padding:0;">تفصيل حسبة التعلية (Gross-up تفصيلي):</div>
                 <div class="batch-actions-bar">
                     <button type="button" class="icon-action-btn" title="استيراد ملف إكسيل لأكثر من 2500 عامل">
-                        📁<input type="file" accept=".xlsx, .xls" id="batchExcelInput" onchange="importBatchExcel(event)">
+                        📁<input type="file" accept=".xlsx, .xls" id="batchExcelInput" onchange="importBatchExcel(event)" autocomplete="off">
                     </button>
                     <button type="button" class="icon-action-btn calc" title="احتساب التعلية للجميع دفعة واحدة" onclick="runBatchCalculation()">
                         ⚡
@@ -977,7 +977,6 @@ function importBatchExcel(event) {
     reader.readAsArrayBuffer(file);
 }
 
-// دالة الاحتساب الجماعي المصححة 100% لتطابق الحسبة الفردية واليدوية بدقة تامة
 function runBatchCalculation() {
     if (!batchEmployeesData || batchEmployeesData.length === 0) {
         alert("برجاء استيراد ملف إكسيل أولاً عن طريق زر الاستيراد (📁).");
@@ -1811,86 +1810,56 @@ function calculateTaxETA() {
             marginalComplement = 0.725;
             marginalRatePercent = "27.5%";
             bracketLabel = "أكثر من 1,200,000 ج (سعر 27.5% | الثابت 30,000)";
-            grossRangeText = "أكثر من 1,200,000 ج.م سنوياً";
-            netRangeText = "أكثر من 900,000 ج.م سنوياً (بعد خصم الضريبة)";
-            constantDerivationHtml = 
-                "<p><strong>كيف تم حساب الثابت الضريبي (30,000 ج.م) لهذا الوعاء؟</strong></p>" +
-                "<p>في هذه الشريحة العليا (أكثر من 1,200,000 ج.م)، أول <strong>1,200,000 ج.م</strong> تُحسب بسعر <strong>25%</strong> (وضريبتها = 1,200,000 × 25% = <strong>300,000 ج.م</strong>)، وما زاد عنها يُحسب بسعر <strong>27.5%</strong>.</p>" +
-                "<div class='modal-formula-box'>الوفر الضريبي لأول 1,200,000 ج.م = 1,200,000 × (27.5% - 25%) = 1,200,000 × 2.5% = 30,000 ج.م</div>";
         } else if (rhsTarget > 685000) {
             taxConstant = 10000;
             marginalComplement = 0.75;
             marginalRatePercent = "25%";
             bracketLabel = "من 900,000 إلى 1,200,000 ج (سعر 25% | الثابت 10,000)";
-            grossRangeText = "من 900,001 إلى 1,200,000 ج.م سنوياً";
-            netRangeText = "من 685,000.75 إلى 900,000 ج.م سنوياً";
-            constantDerivationHtml = 
-                "<p><strong>كيف تم حساب الثابت الضريبي (10,000 ج.م) لهذا الوعاء؟</strong></p>" +
-                "<p>في هذه الفئة يُلغى الإعفاء والشرائح الثلاث الأولى، فتُحسب أول <strong>400,000 ج.م</strong> بسعر <strong>22.5%</strong>، وما زاد عنها حتى 1,200,000 ج.م بسعر <strong>25%</strong>.</p>" +
-                "<div class='modal-formula-box'>الفارق التراكمي = 400,000 × (25% - 22.5%) = 10,000 ج.م</div>";
         } else if (rhsTarget > 615000) {
             taxConstant = 15000;
             marginalComplement = 0.75;
             marginalRatePercent = "25%";
             bracketLabel = "من 800,000 إلى 900,000 ج (سعر 25% | الثابت 15,000)";
-            grossRangeText = "من 800,001 إلى 900,000 ج.م سنوياً";
-            netRangeText = "من 615,000.75 إلى 685,000 ج.م سنوياً";
         } else if (rhsTarget > 543500) {
             taxConstant = 18500;
             marginalComplement = 0.75;
             marginalRatePercent = "25%";
             bracketLabel = "من 700,000 إلى 800,000 ج (سعر 25% | الثابت 18,500)";
-            grossRangeText = "من 700,001 إلى 800,000 ج.م سنوياً";
-            netRangeText = "من 543,500.75 إلى 615,000 ج.م سنوياً";
         } else if (rhsTarget > 471250) {
             taxConstant = 21250;
             marginalComplement = 0.75;
             marginalRatePercent = "25%";
             bracketLabel = "من 600,000 إلى 700,000 ج (سعر 25% | الثابت 21,250)";
-            grossRangeText = "من 600,001 إلى 700,000 ج.م سنوياً";
-            netRangeText = "من 471,250.75 إلى 543,500 ج.م سنوياً";
         } else if (rhsTarget > 325250) {
             taxConstant = 25250;
             marginalComplement = 0.75;
             marginalRatePercent = "25%";
             bracketLabel = "من 400,000 إلى 600,000 ج (سعر 25% | الثابت 25,250)";
-            grossRangeText = "من 400,001 إلى 600,000 ج.م سنوياً";
-            netRangeText = "من 325,250.75 إلى 471,250 ج.م سنوياً";
         } else if (rhsTarget > 170250) {
             taxConstant = 15250;
             marginalComplement = 0.775;
             marginalRatePercent = "22.5%";
             bracketLabel = "من 200,000 إلى 400,000 ج (سعر 22.5% | الثابت 15,250)";
-            grossRangeText = "من 200,001 إلى 400,000 ج.م سنوياً";
-            netRangeText = "من 170,250.78 إلى 325,250 ج.م سنوياً";
         } else if (rhsTarget > 66250) {
             taxConstant = 10250;
             marginalComplement = 0.80;
             marginalRatePercent = "20%";
             bracketLabel = "من 70,000 إلى 200,000 ج (سعر 20% | الثابت 10,250)";
-            grossRangeText = "من 70,001 إلى 200,000 ج.م سنوياً";
-            netRangeText = "من 66,250.80 إلى 170,250 ج.م سنوياً";
         } else if (rhsTarget > 53500) {
             taxConstant = 6750;
             marginalComplement = 0.85;
             marginalRatePercent = "15%";
             bracketLabel = "من 55,000 إلى 70,000 ج (سعر 15% | الثابت 6,750)";
-            grossRangeText = "من 55,001 إلى 70,000 ج.م سنوياً";
-            netRangeText = "من 53,500.85 إلى 66,250 ج.م سنوياً";
         } else if (rhsTarget > 40000) {
             taxConstant = 4000;
             marginalComplement = 0.90;
             marginalRatePercent = "10%";
             bracketLabel = "من 40,000 إلى 55,000 ج (سعر 10% | الثابت 4,000)";
-            grossRangeText = "من 40,001 إلى 55,000 ج.م سنوياً";
-            netRangeText = "من 40,000.90 إلى 53,500 ج.م سنوياً";
         } else {
             taxConstant = 0;
             marginalComplement = 1.00;
             marginalRatePercent = "0%";
             bracketLabel = "معفى حتى 40,000 ج (سعر 0% | الثابت 0)";
-            grossRangeText = "حتى 40,000 ج.م سنوياً";
-            netRangeText = "حتى 40,000 ج.م سنوياً";
         }
 
         var b1Raw = (rhsTarget - taxConstant) / marginalComplement;
