@@ -6,7 +6,7 @@
     <title>حساب ضريبة المرتبات - شركة الدلتا للسكر</title>
     <!-- مكتبة قراءة وكتابة ملفات الإكسيل SheetJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- مكتبة html2canvas لتحويل الجدول إلى صورة -->
+    <!-- مكتبة html2canvas لتحويل الجداول إلى صور كاملة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
@@ -310,6 +310,28 @@
         }
         input:focus, select:focus { outline: none; border-color: var(--blue-primary); box-shadow: 0 0 0 3px rgba(0,0,0,0.1); }
 
+        .phone-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .contact-action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .contact-action-btn:hover { transform: scale(1.08); }
+        .call-btn { background: #16a34a; color: white; }
+        .whatsapp-btn { background: #25d366; color: white; }
+
         button.action-btn { 
             width: 100%; padding: 14px; background: var(--blue-primary); color: white; border: none; 
             border-radius: 12px; font-size: 1.1rem; font-weight: 700; margin-top: 12px; cursor: pointer; transition: all 0.25s ease;
@@ -373,8 +395,8 @@
             display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 15px;
         }
         .modal-content {
-            background: var(--card-bg); width: 100%; max-width: 850px; border-radius: 16px; padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid var(--gray-border); max-height: 88vh; overflow-y: auto; color: var(--text-main);
+            background: var(--card-bg); width: 100%; max-width: 920px; border-radius: 16px; padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid var(--gray-border); max-height: 90vh; overflow-y: auto; color: var(--text-main);
         }
         .modal-header {
             display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gray-border); padding-bottom: 12px; margin-bottom: 15px;
@@ -387,7 +409,6 @@
         .modal-btn { background: var(--blue-primary); color: white; border: none; padding: 7px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
         .modal-btn:hover { filter: brightness(1.1); }
 
-        /* تنسيق أزرار قائمة الإعدادات داخل النافذة المنبثقة بشكل مرتب وشياكة */
         .settings-menu-grid {
             display: flex;
             flex-direction: column;
@@ -472,7 +493,11 @@
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>رقم التليفون:</label>
-                <input type="text" id="s1_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(1)" onfocus="filterPhoneDropdown(1)">
+                <div class="phone-input-wrapper">
+                    <input type="text" id="s1_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(1); updateContactLinks(1);" onfocus="filterPhoneDropdown(1)">
+                    <a id="s1_callBtn" href="#" class="contact-action-btn call-btn" title="اتصال هاتفي" style="display:none;">📞</a>
+                    <a id="s1_waBtn" href="#" target="_blank" class="contact-action-btn whatsapp-btn" title="مراسلة واتساب" style="display:none;">💬</a>
+                </div>
                 <div id="s1_phone_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
         </div>
@@ -596,7 +621,11 @@
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>رقم التليفون:</label>
-                <input type="text" id="s2_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(2)" onfocus="filterPhoneDropdown(2)">
+                <div class="phone-input-wrapper">
+                    <input type="text" id="s2_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(2); updateContactLinks(2);" onfocus="filterPhoneDropdown(2)">
+                    <a id="s2_callBtn" href="#" class="contact-action-btn call-btn" title="اتصال هاتفي" style="display:none;">📞</a>
+                    <a id="s2_waBtn" href="#" target="_blank" class="contact-action-btn whatsapp-btn" title="مراسلة واتساب" style="display:none;">💬</a>
+                </div>
                 <div id="s2_phone_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
         </div>
@@ -726,11 +755,11 @@
                 <span id="s2_periodTax">0 ج.م</span>
             </div>
 
-            <!-- تفصيل حسبة التعلية ومعها زر العرض (👁️) وزر الاستيراد والاحتساب والحفظ -->
+            <!-- تفصيل حسبة التعلية ومعها زر العرض والشامل -->
             <div class="section-header-flex" style="margin-top: 20px;">
                 <div class="section-title" style="font-size:0.95rem; margin-bottom:0; border:none; padding:0;">تفصيل حسبة التعلية (Gross-up تفصيلي):</div>
                 <div class="batch-actions-bar">
-                    <button type="button" class="icon-action-btn view" title="عرض البيانات المحسوبة بعد الاحتساب من أول رقم الصرف إلى الوعاء السنوي النهائي" onclick="openBatchResultsModal()">
+                    <button type="button" class="icon-action-btn view" title="عرض البيانات الشاملة المحسوبة (من أول رقم الصرف والوعاء والضريبة حتى الوعاء السنوي النهائي)" onclick="openBatchResultsModal()">
                         👁️
                     </button>
                     <button type="button" class="icon-action-btn" title="استيراد ملف إكسيل">
@@ -793,7 +822,6 @@ function setTheme(themeName, save = true) {
     closeModal();
 }
 
-/* فتح نافذة إعدادات منسقة ومرتبة كبديل للقائمة الجانبية */
 function openSettingsModal() {
     var settingsHTML = `
         <p style="margin-bottom:12px; font-weight:600;">اختر السيم أو العرض المطلوب:</p>
@@ -807,8 +835,8 @@ function openSettingsModal() {
             <div class="settings-menu-item" onclick="setTheme('orange')">🍊 سيم أورانج</div>
             <div class="settings-menu-item" onclick="setTheme('fantasy')">✨ سيم خيالي</div>
             <div class="settings-menu-item" onclick="setTheme('ai')">🤖 سيم AI (ذكاء اصطناعي)</div>
-            <div class="settings-menu-item" onclick="openTaxConstantsModal()" style="color:var(--blue-primary); border-color:var(--blue-border);">📊 جدول الثوابت الضريبية</div>
-            <div class="settings-menu-item" onclick="openTaxConstantExplanationModal()" style="color:var(--blue-primary); border-color:var(--blue-border);">💡 الثابت الضريبي والشرح</div>
+            <div class="settings-menu-item" onclick="openTaxConstantsModal()" style="color:var(--blue-primary); border-color:var(--blue-border);">📊 قانون وجدول الثوابت الضريبية</div>
+            <div class="settings-menu-item" onclick="openTaxConstantExplanationModal()" style="color:var(--blue-primary); border-color:var(--blue-border);">💡 الشرح وقواعد احتساب الضريبة (مع جدول الثوابت وتفصيلها)</div>
         </div>
     `;
     document.getElementById('modalActionsBar').innerHTML = '';
@@ -821,61 +849,146 @@ document.addEventListener('click', function(e) {
     }
 });
 
+/* جدول قانون الدخل والثوابت الضريبية */
 function openTaxConstantsModal() {
     var tableHTML = `
-        <div id="captureTaxTableArea">
-            <p style="margin-bottom:8px;"><strong>جدول شرائح وقواعد حساب الضريبة السنوية والثوابت الضريبية الشاملة:</strong></p>
+        <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
+            <p style="margin-bottom:8px; text-align:center; font-weight:bold;">جدول شرائح وقواعد حساب ضريبة الدخل السنوية:</p>
             <div class="tax-table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>نطاق صافي الدخل السنوي</th>
-                            <th>الشريحة الحدية</th>
-                            <th>الثابت الضريبي المعتمد</th>
-                            <th>مكمل الشريحة الحدية</th>
-                            <th>تفصيل الشرائح والفئات المكونة</th>
+                            <th>سعر الضريبة</th>
+                            <th>صافي الدخل حتى 600,000 ج</th>
+                            <th>صافي الدخل 600 إلى 700 ألف</th>
+                            <th>صافي الدخل 700 إلى 800 ألف</th>
+                            <th>صافي الدخل 800 إلى 900 ألف</th>
+                            <th>صافي الدخل 900 ألف إلى 1.2 مليون</th>
+                            <th>أكثر من 1,200,000 جنيه</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>حتى 40,000 ج</strong></td><td>0%</td><td><strong>0 ج</strong></td><td>1.00</td><td>معفى بالكامل (شريحة الإعفاء الشخصي الأساسي).</td></tr>
-                        <tr><td><strong>من 40,000 إلى 55,000 ج</strong></td><td>10%</td><td><strong>4,000 ج</strong></td><td>0.90</td><td>الشريحة الأولى (40,000 × 0%) + الثانية (15,000 × 10%).</td></tr>
-                        <tr><td><strong>من 55,000 إلى 70,000 ج</strong></td><td>15%</td><td><strong>6,750 ج</strong></td><td>0.85</td><td>شاملة 40,000 معفاة + 15,000 بـ 10% + 15,000 بـ 15%.</td></tr>
-                        <tr><td><strong>من 70,000 إلى 200,000 ج</strong></td><td>20%</td><td><strong>10,250 ج</strong></td><td>0.80</td><td>تدرج الشرائح حتى 200,000 ج (شريحة 130,000 بـ 20%).</td></tr>
-                        <tr><td><strong>من 200,000 إلى 400,000 ج</strong></td><td>22.5%</td><td><strong>15,250 ج</strong></td><td>0.775</td><td>تدرج الشرائح حتى 400,000 ج (شريحة 200,000 بـ 22.5%).</td></tr>
-                        <tr><td><strong>من 400,000 إلى 600,000 ج</strong></td><td>25%</td><td><strong>25,250 ج</strong></td><td>0.75</td><td>تدرج الشرائح حتى 600,000 ج (شريحة 200,000 بـ 25%).</td></tr>
-                        <tr><td><strong>من 600,000 إلى 700,000 ج</strong></td><td>25%</td><td><strong>21,250 ج</strong></td><td>0.75</td><td>فئة وعاء 600 إلى 700 ألف.</td></tr>
-                        <tr><td><strong>من 700,000 إلى 800,000 ج</strong></td><td>25%</td><td><strong>18,500 ج</strong></td><td>0.75</td><td>فئة وعاء 700 إلى 800 ألف.</td></tr>
-                        <tr><td><strong>من 800,000 إلى 900,000 ج</strong></td><td>25%</td><td><strong>15,000 ج</strong></td><td>0.75</td><td>فئة وعاء 800 إلى 900 ألف.</td></tr>
-                        <tr><td><strong>من 900,000 إلى 1,200,000 ج</strong></td><td>25%</td><td><strong>10,000 ج</strong></td><td>0.75</td><td>فئة وعاء 900 ألف إلى 1.2 مليون.</td></tr>
-                        <tr><td><strong>أكثر من 1,200,000 ج</strong></td><td>27.5%</td><td><strong>30,000 ج</strong></td><td>0.725</td><td>الشريحة الكبرى فوق 1.2 مليون (27.5%).</td></tr>
+                        <tr><td><strong>0.00%</strong></td><td>من 1 إلى 40,000 ج</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td><strong>10%</strong></td><td>أكثر من 40k إلى 55k</td><td>من 1 إلى 55,000 ج</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td><strong>15%</strong></td><td>أكثر من 55k إلى 70k</td><td>أكثر من 55k إلى 70k</td><td>من 1 إلى 70,000 ج</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td><strong>20%</strong></td><td>أكثر من 70k إلى 200k</td><td>أكثر من 70k إلى 200k</td><td>أكثر من 70k إلى 200k</td><td>من 1 إلى 200,000 ج</td><td>-</td><td>-</td></tr>
+                        <tr><td><strong>22.5%</strong></td><td>أكثر من 200k إلى 400k</td><td>أكثر من 200k إلى 400k</td><td>أكثر من 200k إلى 400k</td><td>أكثر من 200k إلى 400k</td><td>من 1 إلى 400,000 ج</td><td>-</td></tr>
+                        <tr><td><strong>25%</strong></td><td>ما زاد على 400k</td><td>ما زاد على 400k</td><td>ما زاد على 400k</td><td>ما زاد على 400k</td><td>ما زاد على 400k</td><td>من 1 إلى 1,200,000 ج</td></tr>
+                        <tr><td><strong>27.5%</strong></td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>ما زاد على 1,200,000 ج</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="margin-top:10px; font-size:0.75rem; text-align:center;">* ويتم تقريب مجموع صافي الدخل السنوي عند حساب الضريبة لأقرب عشرة جنيهات أقل.</p>
+        </div>
+    `;
+    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ جدول القانون كصورة كاملة</button>';
+    showModal("قانون وجدول شرائح الدخل الضريبي", tableHTML);
+}
+
+/* جدول الشرح وقواعد الاحتساب موضحاً الثابت الضريبي وكيف جاء بالتفصيل */
+function openTaxConstantExplanationModal() {
+    var explanationHTML = `
+        <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
+            <p style="margin-bottom:10px; font-weight:bold;">دليل الثابت الضريبي وفروق النسب التفصيلية (Gross-up Constants):</p>
+            <p style="font-size:0.85rem; margin-bottom:12px; line-height:1.6;">
+                في حسبة التعلية الجبرية، يتم استخدام "الثابت الضريبي" لكل نطاق وعاء لخصم الفروق التراكمية الناتجة عن الشرائح السابقة المعفاة أو الأقل سعراً، لضمان دقة ضريبة المكافأة. إليك جدول تفصيل الثوابت الضريبية وكيف جاءت كل قيمة:
+            </p>
+            <div class="tax-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نطاق الوعاء السنوي</th>
+                            <th>الشريحة الحدية</th>
+                            <th>الثابت الضريبي المعتمد</th>
+                            <th>كيف جاء الثابت الضريبي تفصيلياً (الحسبة والمنشا)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>حتى 40,000 ج</strong></td>
+                            <td>0%</td>
+                            <td><strong>0 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">شريحة الإعفاء الأساسي بالكامل (40,000 × 0%) = 0 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 40k إلى 55,000 ج</strong></td>
+                            <td>10%</td>
+                            <td><strong>4,000 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">وفر الشريحة السابقة: (40,000 × (10% - 0%)) = 4,000 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 55k إلى 70,000 ج</strong></td>
+                            <td>15%</td>
+                            <td><strong>6,750 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">(40,000 × 15%) + (15,000 × (15% - 10%)) = 6,000 + 750 = 6,750 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 70k إلى 200,000 ج</strong></td>
+                            <td>20%</td>
+                            <td><strong>10,250 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">تراكم فروق الشرائح السابقة حتى تجاوز 70 ألف = 10,250 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 200k إلى 400,000 ج</strong></td>
+                            <td>22.5%</td>
+                            <td><strong>15,250 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">تراكم فروق الشرائح حتى شريحة 200 ألف (22.5%) = 15,250 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 400k إلى 600,000 ج</strong></td>
+                            <td>25%</td>
+                            <td><strong>25,250 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">تراكم فروق الشرائح حتى شريحة 400 ألف (25%) = 25,250 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 600k إلى 700,000 ج</strong></td>
+                            <td>25%</td>
+                            <td><strong>21,250 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 600 إلى 700 ألف (تبدأ الشريحة الأولى 10% لـ 55 ألف) = 21,250 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 700k إلى 800,000 ج</strong></td>
+                            <td>25%</td>
+                            <td><strong>18,500 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 700 إلى 800 ألف (تبدأ الشريحة الأولى 15% لـ 70 ألف) = 18,500 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 800k إلى 900,000 ج</strong></td>
+                            <td>25%</td>
+                            <td><strong>15,000 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 800 إلى 900 ألف (تبدأ الشريحة الأولى 20% لـ 200 ألف) = 15,000 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>من 900k إلى 1,200,000 ج</strong></td>
+                            <td>25%</td>
+                            <td><strong>10,000 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 900 ألف إلى 1.2 مليون (تبدأ الشريحة الأولى 22.5% لـ 400 ألف) = 10,000 ج.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>أكثر من 1,200,000 ج</strong></td>
+                            <td>27.5%</td>
+                            <td><strong>30,000 ج</strong></td>
+                            <td style="text-align:right; padding:6px 10px;">وفورات الشرائح الكبرى والـ 25% السابقة حتى 1.2 مليون = (1,200,000 × (27.5% - 25%)) = 30,000 ج.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     `;
-    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ كصورة</button>';
-    showModal("جدول الثوابت والشرائح الضريبية الشامل", tableHTML);
+    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ جدول الثوابت والشرح كصورة كاملة</button>';
+    showModal("شرح الثوابت الضريبية وتفصيلها", explanationHTML);
 }
 
-function openTaxConstantExplanationModal() {
-    var explanationHTML = `
-        <p style="margin-bottom:10px;"><strong>دليل الثابت الضريبي وفروق النسب الكاملة (Gross-up Constants):</strong></p>
-        <p style="font-size:0.88rem; margin-bottom:12px; line-height:1.6;">
-            في حسبة التعلية الجبرية، يتم استخدام معادلة الثابت الضريبي لكل نطاق وعاء بدقة تامة لضمان مطابقة مصلحة الضرائب المصرية بنسبة مئة بالمئة.
-        </p>
-    `;
-    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ كصورة</button>';
-    showModal("شرح الثوابت الضريبية وفروق النسب", explanationHTML);
-}
-
+/* حفظ الصورة بالحجم الكامل لضمان عدم نقص أي بيانات */
 function saveModalAsImage() {
-    var targetElement = document.getElementById('modalContentArea');
+    var targetElement = document.getElementById('captureTaxTableArea') || document.getElementById('modalContentArea');
     var actionsBar = document.getElementById('modalActionsBar');
     actionsBar.style.display = 'none';
-    html2canvas(targetElement, { scale: 2, backgroundColor: null }).then(function(canvas) {
+    
+    html2canvas(targetElement, { scale: 2, useCORS: true, logging: false }).then(function(canvas) {
         actionsBar.style.display = 'flex';
         var link = document.createElement('a');
-        link.download = 'جدول_الثوابت_الضريبية.png';
+        link.download = 'جدول_الثوابت_والشرح_الضريبي.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
     }).catch(function(err) {
@@ -891,20 +1004,24 @@ function openBatchResultsModal() {
     }
     
     var tableHTML = `
-        <p style="margin-bottom:8px;"><strong>نتائج حساب التعلية والمكافأة (من أول رقم الصرف حتى الوعاء السنوي النهائي):</strong></p>
-        <div class="tax-table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>رقم الصرف</th>
-                        <th>اسم الموظف</th>
-                        <th>الاستحقاقات</th>
-                        <th>التعلية</th>
-                        <th>المكافأة شاملة التعلية</th>
-                        <th>الوعاء السنوي النهائي</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
+            <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين):</p>
+            <div class="tax-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم الصرف</th>
+                            <th>اسم الموظف</th>
+                            <th>الاستحقاقات</th>
+                            <th>الوعاء السابق</th>
+                            <th>مدة العمل السابقة</th>
+                            <th>الضريبة السابقة</th>
+                            <th>التعلية</th>
+                            <th>المكافأة شاملة التعلية</th>
+                            <th>الوعاء السنوي النهائي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
     `;
     
     for (var i = 0; i < batchEmployeesData.length; i++) {
@@ -912,6 +1029,9 @@ function openBatchResultsModal() {
         var payId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']) || '-';
         var name = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']) || '-';
         var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
+        var pBase = parseFloat(getVal(emp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase'])) || 0;
+        var pDays = parseFloat(getVal(emp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'مدة العمل', 'PrevWorkDays', 'أيام'])) || 0;
+        var pTax = parseFloat(getVal(emp, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
         var add = parseFloat(emp['التعلية']) || 0;
         var totalWithAdd = parseFloat(emp['المكافأة شاملة التعلية']) || gross;
         var finalBase = parseFloat(emp['الوعاء السنوي النهائي']) || 0;
@@ -921,6 +1041,9 @@ function openBatchResultsModal() {
                 <td>${payId}</td>
                 <td style="text-align:right;">${name}</td>
                 <td>${gross.toFixed(2)}</td>
+                <td>${pBase.toFixed(2)}</td>
+                <td>${pDays}</td>
+                <td>${pTax.toFixed(2)}</td>
                 <td style="color:var(--blue-primary); font-weight:bold;">${add.toFixed(2)}</td>
                 <td style="font-weight:bold;">${totalWithAdd.toFixed(2)}</td>
                 <td>${finalBase.toFixed(2)}</td>
@@ -929,12 +1052,13 @@ function openBatchResultsModal() {
     }
     
     tableHTML += `
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     `;
-    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كصورة</button>';
-    showModal("عرض نتائج حساب التعلية الشاملة", tableHTML);
+    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كاملاً كصورة</button>';
+    showModal("عرض نتائج حساب التعلية الشاملة والبيانات الكاملة", tableHTML);
 }
 
 try {
@@ -968,6 +1092,30 @@ function cleanPhone(phone) {
         cleaned = '0' + cleaned;
     }
     return cleaned;
+}
+
+function updateContactLinks(systemNum) {
+    var prefix = systemNum === 1 ? 's1_' : 's2_';
+    var phoneInput = document.getElementById(prefix + 'phone').value;
+    var cleaned = cleanPhone(phoneInput);
+    
+    var callBtn = document.getElementById(prefix + 'callBtn');
+    var waBtn = document.getElementById(prefix + 'waBtn');
+    
+    if (cleaned.length >= 10) {
+        callBtn.href = "tel:" + cleaned;
+        callBtn.style.display = "flex";
+        
+        var waNum = cleaned;
+        if (waNum.startsWith('0')) {
+            waNum = '2' + waNum;
+        }
+        waBtn.href = "https://wa.me/" + waNum;
+        waBtn.style.display = "flex";
+    } else {
+        callBtn.style.display = "none";
+        waBtn.style.display = "none";
+    }
 }
 
 function importEmployeeExcel(event) {
@@ -1077,8 +1225,8 @@ function runBatchCalculation() {
         count++;
     }
 
-    document.getElementById('batchStatus').innerText = "تم احتساب النتائج لـ " + count + " موظفاً بنجاح تام! يمكنك العرض (👁️) أو الحفظ (💾).";
-    alert("تم الانتهاء من احتساب التعلية والمكافأة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الضغط على أيقونة العين (👁️) لعرض الجدول أو الحفظ عبر زر (💾).");
+    document.getElementById('batchStatus').innerText = "تم احتساب النتائج لـ " + count + " موظفاً بنجاح تام! يمكنك العرض الشامل (👁️) أو الحفظ (💾).";
+    alert("تم الانتهاء من احتساب التعلية والمكافأة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الضغط على أيقونة العين (👁️) لعرض الجدول الشامل بجميع التفاصيل أو الحفظ عبر زر (💾).");
 }
 
 function exportBatchExcel() {
@@ -1339,6 +1487,7 @@ function fillEmployeeData(matchedEmp, systemNum) {
     document.getElementById(prefix + 'payId').value = pId;
     document.getElementById(prefix + 'natId').value = nId;
     document.getElementById(prefix + 'phone').value = phoneVal;
+    updateContactLinks(systemNum);
 
     if (isDisability) {
         document.getElementById(prefix + 'opt_disability').checked = true;
@@ -1450,6 +1599,8 @@ function resetSystem(sysNum) {
         document.getElementById('s1_payId').value = "";
         document.getElementById('s1_natId').value = "";
         document.getElementById('s1_phone').value = "";
+        document.getElementById('s1_callBtn').style.display = "none";
+        document.getElementById('s1_waBtn').style.display = "none";
         document.getElementById('grossSalary').value = "";
         document.getElementById('s1_opt_none').checked = true;
         document.getElementById('s1_disabilityEx').value = "0";
@@ -1469,6 +1620,8 @@ function resetSystem(sysNum) {
         document.getElementById('s2_payId').value = "";
         document.getElementById('s2_natId').value = "";
         document.getElementById('s2_phone').value = "";
+        document.getElementById('s2_callBtn').style.display = "none";
+        document.getElementById('s2_waBtn').style.display = "none";
         document.getElementById('s2_prevBase').value = "";
         document.getElementById('s2_prevWorkDays').value = "";
         document.getElementById('s2_prevTax').value = "";
