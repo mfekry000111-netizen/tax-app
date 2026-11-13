@@ -6,6 +6,8 @@
     <title>حساب ضريبة المرتبات - شركة الدلتا للسكر</title>
     <!-- مكتبة قراءة وكتابة ملفات الإكسيل SheetJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- مكتبة html2canvas لتحويل الجدول إلى صورة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
@@ -21,12 +23,143 @@
             --pink-btn-hover: #e11d48;
         }
 
+        /* سيم البني */
+        body.theme-brown {
+            --bg-gradient: linear-gradient(135deg, #3e2723 0%, #4e342e 50%, #5d4037 100%);
+            --card-bg: #efebe9;
+            --text-main: #3e2723;
+            --text-muted: #6d4c41;
+            --blue-primary: #8d6e63;
+            --blue-light: #d7ccc8;
+            --blue-border: #bcaaa4;
+            --gray-light: #e7e0dd;
+            --gray-border: #d7ccc8;
+            --pink-btn-bg: #b71c1c;
+            --pink-btn-hover: #7f0000;
+        }
+        body.theme-brown .box-net-final { background: #4e342e !important; }
+
+        /* سيم الرمادي */
+        body.theme-gray {
+            --bg-gradient: linear-gradient(135deg, #212529 0%, #343a40 50%, #495057 100%);
+            --card-bg: #f8f9fa;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --blue-primary: #495057;
+            --blue-light: #e9ecef;
+            --blue-border: #ced4da;
+            --gray-light: #f1f3f5;
+            --gray-border: #dee2e6;
+            --pink-btn-bg: #c92a2a;
+            --pink-btn-hover: #a61e4d;
+        }
+        body.theme-gray .box-net-final { background: #343a40 !important; }
+
+        /* سيم الاسود الداكن */
+        body.theme-dark {
+            --bg-gradient: linear-gradient(135deg, #000000 0%, #121212 100%);
+            --card-bg: #1e1e1e;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --blue-primary: #3b82f6;
+            --blue-light: #262626;
+            --blue-border: #374151;
+            --gray-light: #252525;
+            --gray-border: #3f3f46;
+        }
+
+        /* سيم موبايل قديم */
+        body.theme-old-mobile {
+            --bg-gradient: linear-gradient(135deg, #2b3d4f 0%, #1b2631 100%);
+            --card-bg: #dbe4aa;
+            --text-main: #112233;
+            --text-muted: #334455;
+            --blue-primary: #1e3a5f;
+            --blue-light: #c5d288;
+            --blue-border: #7a8b4e;
+            --gray-light: #cce08d;
+            --gray-border: #7a8b4e;
+            --pink-btn-bg: #a93226;
+            --pink-btn-hover: #78281f;
+        }
+        body.theme-old-mobile .app-card { border: 2px solid #334455; box-shadow: 0 15px 30px rgba(0,0,0,0.6); }
+        body.theme-old-mobile input, body.theme-old-mobile select { background: #eaf0cc; border-color: #7a8b4e; color: #112233; }
+        body.theme-old-mobile .result-box-item, body.theme-old-mobile .section-box { background: #cce08d; border-color: #7a8b4e; color: #112233; }
+        body.theme-old-mobile .box-net-final { background: #1e3a5f !important; color: #ffffff !important; }
+
+        /* سيم الموز */
+        body.theme-banana {
+            --bg-gradient: linear-gradient(135deg, #143601 0%, #1a4d02 100%);
+            --card-bg: #f4f9f0;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --blue-primary: #2e7d32;
+            --blue-light: #e8f5e9;
+            --blue-border: #a5d6a7;
+            --gray-light: #eef5e6;
+            --gray-border: #c8e6c9;
+            --pink-btn-bg: #c62828;
+            --pink-btn-hover: #b71c1c;
+        }
+        body.theme-banana .box-net-final { background: #1b5e20 !important; }
+
+        /* سيم أورانج */
+        body.theme-orange {
+            --bg-gradient: linear-gradient(135deg, #431407 0%, #7c2d12 50%, #9a3412 100%);
+            --card-bg: #fffbeb;
+            --text-main: #451a03;
+            --text-muted: #78350f;
+            --blue-primary: #ea580c;
+            --blue-light: #ffedd5;
+            --blue-border: #fed7aa;
+            --gray-light: #fef3c7;
+            --gray-border: #fde68a;
+            --pink-btn-bg: #e11d48;
+            --pink-btn-hover: #be123c;
+        }
+        body.theme-orange .box-net-final { background: #c2410c !important; }
+
+        /* سيم خيالي */
+        body.theme-fantasy {
+            --bg-gradient: linear-gradient(135deg, #2e1065 0%, #581c87 50%, #701a75 100%);
+            --card-bg: #fdf4ff;
+            --text-main: #4a044e;
+            --text-muted: #701a75;
+            --blue-primary: #a21caf;
+            --blue-light: #fae8ff;
+            --blue-border: #f5d0fe;
+            --gray-light: #f5f3ff;
+            --gray-border: #e9d5ff;
+            --pink-btn-bg: #db2777;
+            --pink-btn-hover: #be185d;
+        }
+        body.theme-fantasy .box-net-final { background: #86198f !important; }
+
+        /* سيم AI */
+        body.theme-ai {
+            --bg-gradient: linear-gradient(135deg, #030712 0%, #064e3b 50%, #022c22 100%);
+            --card-bg: #061513;
+            --text-main: #34d399;
+            --text-muted: #6ee7b7;
+            --blue-primary: #10b981;
+            --blue-light: #022f26;
+            --blue-border: #059669;
+            --gray-light: #08221c;
+            --gray-border: #065f46;
+            --pink-btn-bg: #06b6d4;
+            --pink-btn-hover: #0891b2;
+        }
+        body.theme-ai input, body.theme-ai select { background: #022f26; border-color: #059669; color: #34d399; }
+        body.theme-ai input:focus, body.theme-ai select:focus { border-color: #34d399; box-shadow: 0 0 12px rgba(52, 211, 153, 0.4); }
+        body.theme-ai .app-card { border: 1px solid #10b981; box-shadow: 0 0 30px rgba(16, 185, 129, 0.25); }
+        body.theme-ai .box-net-final { background: #059669 !important; }
+
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         
         body { 
             background: var(--bg-gradient);
             min-height: 100vh;
-            padding: 30px 15px; 
+            padding: 50px 15px 30px 15px;
             display: flex; 
             justify-content: center; 
             align-items: flex-start;
@@ -37,20 +170,23 @@
             width: 100%; 
             max-width: 950px; 
             border-radius: 20px; 
-            padding: 30px; 
+            padding: 25px; 
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(30, 41, 59, 0.3); 
             border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
         }
         
         .top-actions-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 15px;
         }
+        
         .image-upload-container {
-            width: 75px;
-            height: 75px;
+            width: 45px;
+            height: 45px;
             border: 2px dashed var(--blue-primary);
             border-radius: 50%;
             display: flex;
@@ -61,508 +197,251 @@
             overflow: hidden;
             background: var(--blue-light);
             transition: all 0.3s ease;
-            box-shadow: 0 8px 15px rgba(29, 78, 216, 0.15);
+            box-shadow: 0 4px 10px rgba(29, 78, 216, 0.15);
         }
-        .image-upload-container:hover { 
-            border-color: #1e40af; 
-            transform: scale(1.06);
-            background: #dbeafe;
-        }
+        .image-upload-container:hover { transform: scale(1.06); }
         .image-upload-container input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
+            position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer;
         }
         .image-upload-container .plus-icon {
-            font-size: 2.5rem;
-            color: var(--blue-primary);
-            font-weight: bold;
-            line-height: 1;
+            font-size: 1.5rem; color: var(--blue-primary); font-weight: bold; line-height: 1;
+        }
+
+        .gear-btn {
+            width: 45px; height: 45px; border: 2px solid var(--blue-primary); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            background: var(--blue-light); transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            font-size: 1.3rem;
+        }
+        .gear-btn:hover { transform: rotate(45deg) scale(1.06); }
+
+        .app-title-box {
+            text-align: center;
+            background: var(--gray-light);
+            border: 2px solid var(--blue-border);
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .app-title-box h2 {
+            color: var(--text-main);
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin: 0;
+            border: none;
+            padding: 0;
+            letter-spacing: 0.3px;
         }
 
         #fileStatus {
             text-align: center;
-            font-size: 0.9rem;
-            color: #1e3a8a;
-            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
             font-weight: 600;
             background: var(--gray-light);
-            padding: 12px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
             border: 1px solid var(--gray-border);
-        }
-
-        h2 { 
-            text-align: center; 
-            color: #1e3a8a;
-            margin-bottom: 25px; 
-            font-size: 1.7rem; 
-            font-weight: 800;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e2e8f0;
         }
         
         .nav-tabs { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 25px; 
-            background: var(--gray-light); 
-            padding: 6px; 
-            border-radius: 14px; 
-            border: 1px solid var(--gray-border);
+            display: flex; gap: 10px; margin-bottom: 20px; background: var(--gray-light); 
+            padding: 5px; border-radius: 12px; border: 1px solid var(--gray-border);
         }
         .nav-tab { 
-            flex: 1; 
-            padding: 12px; 
-            text-align: center; 
-            background: transparent; 
-            border: none; 
-            border-radius: 10px; 
-            font-size: 1rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            color: var(--text-muted); 
-            transition: all 0.2s ease;
+            flex: 1; padding: 10px; text-align: center; background: transparent; border: none; 
+            border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; color: var(--text-muted); transition: all 0.2s ease;
         }
-        .nav-tab:hover {
-            color: var(--blue-primary);
-            background: #e2e8f0;
-        }
-        .nav-tab.active { 
-            background: #1e3a8a; 
-            color: white; 
-            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
-        }
+        .nav-tab:hover { color: var(--blue-primary); background: rgba(0,0,0,0.05); }
+        .nav-tab.active { background: var(--blue-primary); color: white; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
 
-        /* القائمة المنسدلة الذكية */
         .custom-dropdown {
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            right: 0;
-            max-height: 160px;
-            overflow-y: auto;
-            background: #ffffff;
-            border: 1px solid var(--gray-border);
-            border-radius: 10px;
-            z-index: 9999;
-            box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.1);
-            margin-bottom: 4px;
+            position: absolute; bottom: 100%; left: 0; right: 0; max-height: 160px; overflow-y: auto;
+            background: var(--card-bg); border: 1px solid var(--gray-border); border-radius: 10px; z-index: 9999;
+            box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.1); margin-bottom: 4px;
         }
         .dropdown-item {
-            padding: 9px 12px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--text-main);
-            font-weight: 600;
-            border-bottom: 1px solid #f1f5f9;
-            transition: background 0.15s;
+            padding: 9px 12px; cursor: pointer; font-size: 0.9rem; color: var(--text-main); font-weight: 600;
+            border-bottom: 1px solid var(--gray-border); transition: background 0.15s;
         }
-        .dropdown-item:hover {
-            background: var(--blue-light);
-            color: var(--blue-primary);
-        }
-        .dropdown-item:last-child {
-            border-bottom: none;
-        }
-        .hidden-dropdown {
-            display: none !important;
-        }
+        .dropdown-item:hover { background: var(--blue-light); color: var(--blue-primary); }
+        .dropdown-item:last-child { border-bottom: none; }
+        .hidden-dropdown { display: none !important; }
 
         .radio-group-inline {
-            display: flex;
-            gap: 25px;
-            align-items: center;
-            background: #ffffff;
-            padding: 11px 14px;
-            border: 1px solid var(--gray-border);
-            border-radius: 10px;
+            display: flex; gap: 25px; align-items: center; background: var(--card-bg);
+            padding: 11px 14px; border: 1px solid var(--gray-border); border-radius: 10px;
         }
         .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--text-main); font-size: 0.95rem;
         }
-        .radio-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: var(--blue-primary);
-        }
+        .radio-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--blue-primary); }
 
         .section-box {
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 18px;
-            border: 1px solid var(--gray-border);
-            background: var(--gray-light);
-            transition: all 0.2s ease;
+            border-radius: 14px; padding: 18px; margin-bottom: 18px; border: 1px solid var(--gray-border);
+            background: var(--gray-light); transition: all 0.2s ease;
         }
 
         .section-header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            border-bottom: 1px dashed var(--gray-border);
-            padding-bottom: 6px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+            border-bottom: 1px dashed var(--gray-border); padding-bottom: 6px;
         }
 
-        .section-title { 
-            color: #1e3a8a; 
-            font-weight: 700; 
-            font-size: 1.05rem; 
-            margin-bottom: 0;
-        }
+        .section-title { color: var(--text-main); font-weight: 700; font-size: 1.05rem; margin-bottom: 0; }
 
         .small-reset-btn {
-            background: var(--pink-btn-bg);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 5px 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 6px rgba(244, 63, 94, 0.3);
+            background: var(--pink-btn-bg); color: #ffffff; border: none; border-radius: 8px;
+            padding: 5px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
         }
-        .small-reset-btn:hover {
-            background: var(--pink-btn-hover);
-            transform: translateY(-1px);
-        }
+        .small-reset-btn:hover { background: var(--pink-btn-hover); transform: translateY(-1px); }
         
         .input-group { margin-bottom: 12px; position: relative; }
         .input-group:last-child { margin-bottom: 0; }
         
-        label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-size: 0.9rem; 
-            color: var(--text-main); 
-            font-weight: 600; 
-        }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-main); font-weight: 600; }
         input, select { 
-            width: 100%; 
-            padding: 11px 14px; 
-            border: 1px solid var(--gray-border); 
-            border-radius: 10px; 
-            font-size: 1rem; 
-            background: #ffffff; 
-            color: var(--text-main);
-            font-weight: 600;
-            transition: all 0.2s ease;
+            width: 100%; padding: 11px 14px; border: 1px solid var(--gray-border); border-radius: 10px; 
+            font-size: 1rem; background: var(--card-bg); color: var(--text-main); font-weight: 600; transition: all 0.2s ease;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--blue-primary);
-            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
-        }
+        input:focus, select:focus { outline: none; border-color: var(--blue-primary); box-shadow: 0 0 0 3px rgba(0,0,0,0.1); }
 
         button.action-btn { 
-            width: 100%; 
-            padding: 14px; 
-            background: #1e3a8a; 
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 1.1rem; 
-            font-weight: 700; 
-            margin-top: 12px; 
-            cursor: pointer; 
-            transition: all 0.25s ease;
-            box-shadow: 0 6px 15px rgba(30, 58, 138, 0.25);
+            width: 100%; padding: 14px; background: var(--blue-primary); color: white; border: none; 
+            border-radius: 12px; font-size: 1.1rem; font-weight: 700; margin-top: 12px; cursor: pointer; transition: all 0.25s ease;
         }
-        button.action-btn:hover {
-            background: var(--blue-primary);
-            transform: translateY(-1px);
-        }
+        button.action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
         .results { 
-            margin-top: 25px; 
-            background: var(--gray-light); 
-            color: var(--text-main);
-            padding: 24px; 
-            border-radius: 16px; 
-            border: 1px solid var(--gray-border); 
+            margin-top: 25px; background: var(--gray-light); color: var(--text-main); padding: 24px; 
+            border-radius: 16px; border: 1px solid var(--gray-border); 
         }
         
         .result-box-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 10px;
-            padding: 11px 15px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            background: #ffffff;
-            border: 1px solid var(--gray-border);
-            color: var(--text-main);
+            display: flex; justify-content: space-between; align-items: center; border-radius: 10px;
+            padding: 11px 15px; font-size: 0.95rem; font-weight: 600; margin-bottom: 10px;
+            background: var(--card-bg); border: 1px solid var(--gray-border); color: var(--text-main);
         }
-        .result-box-item span:last-child { 
-            font-weight: 700; 
-            color: var(--blue-primary);
-        }
+        .result-box-item span:last-child { font-weight: 700; color: var(--blue-primary); }
 
         .box-net-final { 
-            background: #1e3a8a; 
-            border: 1px solid #1d4ed8; 
-            color: #ffffff; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin-top: 15px;
-            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+            background: var(--blue-primary); border: 1px solid var(--blue-primary); color: #ffffff; 
+            padding: 15px; border-radius: 10px; margin-top: 15px;
         }
         .box-net-final span { color: #ffffff !important; }
         .box-net-final span:last-child { font-size: 1.3rem; font-weight: 800; }
 
         .box-addition-final {
-            background: #0f172a;
-            border: 1px solid #334155;
-            color: #ffffff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+            background: #0f172a; border: 1px solid #334155; color: #ffffff; padding: 15px; 
+            border-radius: 10px; margin-top: 10px;
         }
         .box-addition-final span { color: #ffffff !important; }
         .box-addition-final span:last-child { font-size: 1.2rem; font-weight: 800; color: #38bdf8 !important; }
 
         .tax-breakdown-wrapper {
-            background: #ffffff;
-            border: 1px solid var(--gray-border);
-            border-radius: 10px;
-            padding: 8px;
-            margin-top: 10px;
+            background: var(--card-bg); border: 1px solid var(--gray-border); border-radius: 10px; padding: 8px; margin-top: 10px;
         }
-
-        .breakdown-box { 
-            display: flex;
-            flex-direction: column;
-            gap: 4px; 
-        }
-
+        .breakdown-box { display: flex; flex-direction: column; gap: 4px; }
         .breakdown-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            border-radius: 6px; 
-            padding: 6px 10px; 
-            font-size: 0.85rem; 
-            font-weight: 600;
-            background: var(--gray-light);
-            border: 1px solid #e2e8f0;
-            color: var(--text-main);
+            display: flex; justify-content: space-between; align-items: center; border-radius: 6px; 
+            padding: 6px 10px; font-size: 0.85rem; font-weight: 600; background: var(--gray-light); border: 1px solid var(--gray-border); color: var(--text-main);
         }
-        .breakdown-item span:last-child { 
-            font-weight: 700; 
-            font-size: 0.9rem; 
-            color: var(--blue-primary); 
-        }
+        .breakdown-item span:last-child { font-weight: 700; font-size: 0.9rem; color: var(--blue-primary); }
 
-        .sub-breakdown-container {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 8px 10px;
-            margin: 4px 0 6px 0;
-        }
-        .sub-breakdown-title {
-            font-size: 0.82rem;
-            font-weight: 800;
-            color: #1e3a8a;
-            margin-bottom: 5px;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed #93c5fd;
-        }
-        .sub-breakdown-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #1e293b;
-            padding: 3px 6px;
-            background: #ffffff;
-            border-radius: 5px;
-            margin-bottom: 3px;
-            border: 1px solid #dbeafe;
-        }
-        .sub-breakdown-item:last-child { margin-bottom: 0; }
-        .sub-breakdown-item span:last-child {
-            color: #1d4ed8;
-            font-weight: 700;
-        }
+        .tax-table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
+        .tax-table-container table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: center; background: var(--card-bg); color: var(--text-main); }
+        .tax-table-container th, .tax-table-container td { border: 1px solid var(--gray-border); padding: 8px 6px; }
+        .tax-table-container th { background: var(--blue-primary); color: #ffffff; font-weight: 700; }
 
-        .info-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 22px;
-            height: 22px;
-            background: #2563eb;
-            color: white;
-            border-radius: 50%;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-right: 6px;
-            border: none;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
-        }
-        .info-btn:hover {
-            background: #1d4ed8;
-            transform: scale(1.08);
-        }
-
-        /* أزرار العلامات والأسهم التفاعلية بجوار عنوان حسبة التعلية */
-        .batch-actions-bar {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
+        .batch-actions-bar { display: flex; gap: 6px; align-items: center; }
         .icon-action-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
-            position: relative;
-            overflow: hidden;
+            background: #2563eb; color: white; border: none; width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; position: relative; overflow: hidden;
         }
-        .icon-action-btn:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-        }
-        .icon-action-btn input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
+        .icon-action-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .icon-action-btn input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         .icon-action-btn.calc { background: #059669; }
-        .icon-action-btn.calc:hover { background: #047857; }
         .icon-action-btn.save { background: #7c3aed; }
-        .icon-action-btn.save:hover { background: #6d28d9; }
+        .icon-action-btn.view { background: #d97706; }
 
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            padding: 15px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.7);
+            display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 15px;
         }
         .modal-content {
-            background: #ffffff;
-            width: 100%;
-            max-width: 650px;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--gray-border);
-            max-height: 88vh;
-            overflow-y: auto;
+            background: var(--card-bg); width: 100%; max-width: 850px; border-radius: 16px; padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid var(--gray-border); max-height: 88vh; overflow-y: auto; color: var(--text-main);
         }
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gray-border); padding-bottom: 12px; margin-bottom: 15px;
         }
-        .modal-title {
-            color: #1e3a8a;
-            font-size: 1.15rem;
-            font-weight: 800;
-        }
+        .modal-title { color: var(--text-main); font-size: 1.15rem; font-weight: 800; }
         .modal-close {
-            background: #f1f5f9;
-            border: none;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #64748b;
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            background: var(--gray-light); border: none; font-size: 1.1rem; font-weight: bold; color: var(--text-muted); cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-actions-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; justify-content: flex-end; }
+        .modal-btn { background: var(--blue-primary); color: white; border: none; padding: 7px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+        .modal-btn:hover { filter: brightness(1.1); }
+
+        /* تنسيق أزرار قائمة الإعدادات داخل النافذة المنبثقة بشكل مرتب وشياكة */
+        .settings-menu-grid {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
+            flex-direction: column;
+            gap: 8px;
         }
-        .modal-close:hover {
-            background: #fee2e2;
-            color: #ef4444;
-        }
-        .modal-body {
-            font-size: 0.92rem;
-            color: var(--text-main);
-            line-height: 1.65;
-        }
-        .modal-body p { margin-bottom: 10px; }
-        .modal-body ul { margin-right: 18px; margin-bottom: 12px; }
-        .modal-body li { margin-bottom: 6px; }
-        .modal-highlight-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-        .modal-formula-box {
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin: 8px 0;
-            font-family: monospace, 'Segoe UI';
+        .settings-menu-item {
+            padding: 12px 16px;
+            font-size: 0.95rem;
             font-weight: 700;
-            color: #0f172a;
-            direction: rtl;
+            color: var(--text-main);
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: right;
+        }
+        .settings-menu-item:hover {
+            background: var(--blue-light);
+            color: var(--blue-primary);
+            border-color: var(--blue-border);
+            transform: translateX(-3px);
         }
 
         .hidden { display: none; }
 
         @media (max-width: 640px) {
-            body { padding: 10px 5px; }
+            body { padding: 40px 5px 10px 5px; }
             .app-card { padding: 15px; }
-            h2 { font-size: 1.3rem; }
         }
     </style>
 </head>
-<body>
+<body class="theme-default">
 
 <div class="app-card">
     <div class="top-actions-container">
+        <!-- زر رفع ملف العاملين -->
         <div class="image-upload-container" title="تحديث ملف الإكسيل">
             <span class="plus-icon" id="plusSign">+</span>
-            <input type="file" accept=".xlsx, .xls" id="excelInput" onchange="importEmployeeExcel(event)" autocomplete="off">
+            <input type="file" accept=".xlsx, .xls" id="excelInput" onchange="importEmployeeExcel(event)">
+        </div>
+
+        <!-- زر الترس للإعدادات -->
+        <div class="gear-btn" onclick="openSettingsModal()" title="إعدادات السيمات والثوابت الضريبية">
+            ⚙️
         </div>
     </div>
+    
     <div id="fileStatus">جاري التحقق من بيانات العاملين...</div>
 
-    <h2>تطبيق حساب ضريبة المرتبات - شركة الدلتا للسكر</h2>
+    <!-- إطار اسم التطبيق الجميل والمتوسط -->
+    <div class="app-title-box">
+        <h2>حساب ضريبة المرتبات - شركة الدلتا للسكر</h2>
+    </div>
     
     <div class="nav-tabs">
         <button type="button" class="nav-tab active" id="tab1Btn" onclick="switchSystem(1)">ضريبة الشيك الشهري</button>
@@ -577,7 +456,7 @@
                 <button type="button" class="small-reset-btn" onclick="resetSystem(1)">تفريغ البيانات</button>
             </div>
             <div class="input-group">
-                <label>اسم الموظف أو رقم الصرف (ابحث بأي أسماء متفرقة أو برقم الصرف):</label>
+                <label>اسم الموظف أو رقم الصرف:</label>
                 <input type="text" id="s1_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" oninput="filterCustomDropdown(1)" onfocus="filterCustomDropdown(1)">
                 <div id="s1_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
@@ -602,11 +481,11 @@
             <div class="section-title">ثانياً: الاستحقاقات ومدة العمل الثابتة</div>
             <div class="input-group">
                 <label>إجمالي الاستحقاقات (جنية):</label>
-                <input type="number" id="grossSalary" value="" placeholder="أدخل الاستحقاقات" autocomplete="off">
+                <input type="number" id="grossSalary" value="" placeholder="أدخل الاستحقاقات">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل الشهرية (ثابتة):</label>
-                <input type="number" id="attendanceDays" value="30" readonly style="background:#f1f5f9; color:#334155; font-weight:bold;" autocomplete="off">
+                <input type="number" id="attendanceDays" value="30" readonly style="font-weight:bold;">
             </div>
         </div>
 
@@ -625,35 +504,35 @@
             </div>
             <div class="input-group" id="s1_disabilityGroup" style="display: none; margin-top: 10px;">
                 <label>إعفاء الإعاقة (جنية - قابل للتعديل):</label>
-                <input type="number" id="s1_disabilityEx" value="0" placeholder="833.33" autocomplete="off">
+                <input type="number" id="s1_disabilityEx" value="0" placeholder="833.33">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>العلاوة المنضمة (جنية):</label>
-                <input type="number" id="allowance" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="allowance" value="" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>التأمينات الاجتماعية (جنية):</label>
-                <input type="number" id="insurance" value="" placeholder="1670" autocomplete="off">
+                <input type="number" id="insurance" value="" placeholder="1670">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>قسط مدة سابقة (جنية):</label>
-                <input type="number" id="prevLoan" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="prevLoan" value="" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>اشتراكات الصناديق (جنية):</label>
-                <input type="number" id="funds" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="funds" value="" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الإعفاء الشخصي والشريحة الشهري:</label>
-                <input type="number" id="personalExemption" value="5000" readonly style="background:#f1f5f9;" autocomplete="off">
+                <input type="number" id="personalExemption" value="5000" readonly>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الأرباح (جنية):</label>
-                <input type="number" id="otherExemption" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="otherExemption" value="" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>استقطاعات أخرى (سكر ومحمول وشهدا وغيره):</label>
-                <input type="number" id="otherDeductions" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="otherDeductions" value="" placeholder="0">
             </div>
         </div>
 
@@ -701,7 +580,7 @@
                 <button type="button" class="small-reset-btn" onclick="resetSystem(2)">تفريغ البيانات</button>
             </div>
             <div class="input-group">
-                <label>اسم الموظف أو رقم الصرف (ابحث بأي أسماء متفرقة أو برقم الصرف):</label>
+                <label>اسم الموظف أو رقم الصرف:</label>
                 <input type="text" id="s2_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" oninput="filterCustomDropdown(2)" onfocus="filterCustomDropdown(2)">
                 <div id="s2_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
@@ -726,15 +605,15 @@
             <div class="section-title">ثانياً: بيانات الوعاء والضريبة السابقة</div>
             <div class="input-group">
                 <label>آخر وعاء سابق (جنية):</label>
-                <input type="number" id="s2_prevBase" value="" placeholder="فارغ إن لم يوجد" autocomplete="off">
+                <input type="number" id="s2_prevBase" value="" placeholder="فارغ إن لم يوجد">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل الخاصة بأخر وعاء سابق (أيام):</label>
-                <input type="number" id="s2_prevWorkDays" value="" placeholder="فارغ إن لم يوجد" autocomplete="off">
+                <input type="number" id="s2_prevWorkDays" value="" placeholder="فارغ إن لم يوجد">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>ضريبة آخر وعاء سابق (جنية):</label>
-                <input type="number" id="s2_prevTax" value="" placeholder="فارغ إن لم يوجد" autocomplete="off">
+                <input type="number" id="s2_prevTax" value="" placeholder="فارغ إن لم يوجد">
             </div>
         </div>
 
@@ -742,11 +621,11 @@
             <div class="section-title">ثالثاً: الاستحقاقات (الفترة الحالية)</div>
             <div class="input-group">
                 <label>إجمالي الاستحقاقات (المرتب والبدلات والحوافز) (جنية):</label>
-                <input type="number" id="s2_gross" value="" placeholder="أدخل استحقاقات الفترة" autocomplete="off">
+                <input type="number" id="s2_gross" value="" placeholder="أدخل استحقاقات الفترة">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل بالفترة (أيام):</label>
-                <input type="number" id="s2_days" value="30" placeholder="0" oninput="updatePersonalEx()" autocomplete="off">
+                <input type="number" id="s2_days" value="30" placeholder="0" oninput="updatePersonalEx()">
             </div>
         </div>
 
@@ -765,31 +644,31 @@
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الإعفاء الشخصي بالفترة (جنية - منسب تلقائياً وقابل للتعديل):</label>
-                <input type="number" id="s2_personalEx" value="" placeholder="0" oninput="updateDisabilityEx()" autocomplete="off">
+                <input type="number" id="s2_personalEx" value="" placeholder="0" oninput="updateDisabilityEx()">
             </div>
             <div class="input-group" id="disabilityGroup" style="margin-top: 10px;">
                 <label>إعفاء الإعاقة (جنية - بحد أقصى 833.33):</label>
-                <input type="number" id="s2_disabilityEx" value="0" placeholder="0" autocomplete="off">
+                <input type="number" id="s2_disabilityEx" value="0" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>العلاوة المنضمة (جنية - منسبة تلقائياً وقابلة للتعديل):</label>
-                <input type="number" id="s2_allowance" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="s2_allowance" value="" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>التأمينات الاجتماعية (جنية):</label>
-                <input type="number" id="s2_insurance" value="" placeholder="1670" autocomplete="off">
+                <input type="number" id="s2_insurance" value="" placeholder="1670">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>قسط مدة سابقة (جنية):</label>
-                <input type="number" id="s2_prevLoan" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="s2_prevLoan" value="" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الصناديق الخاصة (مدخل يدوي):</label>
-                <input type="number" id="s2_funds" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="s2_funds" value="" placeholder="0">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الأرباح / إعفاءات أخرى (جنية):</label>
-                <input type="number" id="s2_profits" value="" placeholder="0" autocomplete="off">
+                <input type="number" id="s2_profits" value="" placeholder="0">
             </div>
         </div>
 
@@ -847,12 +726,15 @@
                 <span id="s2_periodTax">0 ج.م</span>
             </div>
 
-            <!-- تفصيل حسبة التعلية المضافة ومعها أزرار العلامات والأسهم الجماعية -->
+            <!-- تفصيل حسبة التعلية ومعها زر العرض (👁️) وزر الاستيراد والاحتساب والحفظ -->
             <div class="section-header-flex" style="margin-top: 20px;">
                 <div class="section-title" style="font-size:0.95rem; margin-bottom:0; border:none; padding:0;">تفصيل حسبة التعلية (Gross-up تفصيلي):</div>
                 <div class="batch-actions-bar">
-                    <button type="button" class="icon-action-btn" title="استيراد ملف إكسيل لأكثر من 2500 عامل">
-                        📁<input type="file" accept=".xlsx, .xls" id="batchExcelInput" onchange="importBatchExcel(event)" autocomplete="off">
+                    <button type="button" class="icon-action-btn view" title="عرض البيانات المحسوبة بعد الاحتساب من أول رقم الصرف إلى الوعاء السنوي النهائي" onclick="openBatchResultsModal()">
+                        👁️
+                    </button>
+                    <button type="button" class="icon-action-btn" title="استيراد ملف إكسيل">
+                        📁<input type="file" accept=".xlsx, .xls" id="batchExcelInput" onchange="importBatchExcel(event)">
                     </button>
                     <button type="button" class="icon-action-btn calc" title="احتساب التعلية للجميع دفعة واحدة" onclick="runBatchCalculation()">
                         ⚡
@@ -862,7 +744,7 @@
                     </button>
                 </div>
             </div>
-            <div id="batchStatus" style="font-size: 0.85rem; color: #1e3a8a; font-weight: 600; margin-bottom: 8px;"></div>
+            <div id="batchStatus" style="font-size: 0.85rem; color: var(--blue-primary); font-weight: 600; margin-bottom: 8px;"></div>
 
             <div class="tax-breakdown-wrapper">
                 <div class="breakdown-box" id="s2_additionBreakdown"></div>
@@ -880,16 +762,15 @@
     </div>
 </div>
 
-<!-- نافذة منبثقة عامة للتوضيح (Modal) -->
+<!-- نافذة منبثقة عامة (Modal) -->
 <div id="infoModal" class="modal-overlay hidden">
-    <div class="modal-content">
+    <div class="modal-content" id="modalContentArea">
         <div class="modal-header">
             <div class="modal-title" id="modalTitle">عنوان التوضيح</div>
             <button type="button" class="modal-close" onclick="closeModal()">✕</button>
         </div>
-        <div class="modal-body" id="modalBody">
-            <!-- محتوى الشرح التوضيحي -->
-        </div>
+        <div class="modal-actions-bar" id="modalActionsBar"></div>
+        <div class="modal-body" id="modalBody"></div>
     </div>
 </div>
 
@@ -899,10 +780,162 @@ let currentRawAllowance = 0;
 let s2_employeeSelected = false;
 let batchEmployeesData = [];
 
-let modalExplanations = {
-    bracket: "",
-    formula: ""
-};
+try {
+    let savedTheme = localStorage.getItem('appThemePreference');
+    if (savedTheme) { setTheme(savedTheme, false); }
+} catch(e) {}
+
+function setTheme(themeName, save = true) {
+    document.body.className = 'theme-' + themeName;
+    if (save) {
+        try { localStorage.setItem('appThemePreference', themeName); } catch(e) {}
+    }
+    closeModal();
+}
+
+/* فتح نافذة إعدادات منسقة ومرتبة كبديل للقائمة الجانبية */
+function openSettingsModal() {
+    var settingsHTML = `
+        <p style="margin-bottom:12px; font-weight:600;">اختر السيم أو العرض المطلوب:</p>
+        <div class="settings-menu-grid">
+            <div class="settings-menu-item" onclick="setTheme('default')">🟢 الوضع الافتراضي</div>
+            <div class="settings-menu-item" onclick="setTheme('dark')">🌙 الوضع الأسود الداكن</div>
+            <div class="settings-menu-item" onclick="setTheme('brown')">🟤 السيم البني</div>
+            <div class="settings-menu-item" onclick="setTheme('gray')">🔘 السيم الرمادي</div>
+            <div class="settings-menu-item" onclick="setTheme('old-mobile')">📱 سيم موبايل قديم</div>
+            <div class="settings-menu-item" onclick="setTheme('banana')">🍌 سيم الموز</div>
+            <div class="settings-menu-item" onclick="setTheme('orange')">🍊 سيم أورانج</div>
+            <div class="settings-menu-item" onclick="setTheme('fantasy')">✨ سيم خيالي</div>
+            <div class="settings-menu-item" onclick="setTheme('ai')">🤖 سيم AI (ذكاء اصطناعي)</div>
+            <div class="settings-menu-item" onclick="openTaxConstantsModal()" style="color:var(--blue-primary); border-color:var(--blue-border);">📊 جدول الثوابت الضريبية</div>
+            <div class="settings-menu-item" onclick="openTaxConstantExplanationModal()" style="color:var(--blue-primary); border-color:var(--blue-border);">💡 الثابت الضريبي والشرح</div>
+        </div>
+    `;
+    document.getElementById('modalActionsBar').innerHTML = '';
+    showModal("إعدادات البرنامج والثوابت", settingsHTML);
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.input-group')) {
+        closeAllDropdowns();
+    }
+});
+
+function openTaxConstantsModal() {
+    var tableHTML = `
+        <div id="captureTaxTableArea">
+            <p style="margin-bottom:8px;"><strong>جدول شرائح وقواعد حساب الضريبة السنوية والثوابت الضريبية الشاملة:</strong></p>
+            <div class="tax-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نطاق صافي الدخل السنوي</th>
+                            <th>الشريحة الحدية</th>
+                            <th>الثابت الضريبي المعتمد</th>
+                            <th>مكمل الشريحة الحدية</th>
+                            <th>تفصيل الشرائح والفئات المكونة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>حتى 40,000 ج</strong></td><td>0%</td><td><strong>0 ج</strong></td><td>1.00</td><td>معفى بالكامل (شريحة الإعفاء الشخصي الأساسي).</td></tr>
+                        <tr><td><strong>من 40,000 إلى 55,000 ج</strong></td><td>10%</td><td><strong>4,000 ج</strong></td><td>0.90</td><td>الشريحة الأولى (40,000 × 0%) + الثانية (15,000 × 10%).</td></tr>
+                        <tr><td><strong>من 55,000 إلى 70,000 ج</strong></td><td>15%</td><td><strong>6,750 ج</strong></td><td>0.85</td><td>شاملة 40,000 معفاة + 15,000 بـ 10% + 15,000 بـ 15%.</td></tr>
+                        <tr><td><strong>من 70,000 إلى 200,000 ج</strong></td><td>20%</td><td><strong>10,250 ج</strong></td><td>0.80</td><td>تدرج الشرائح حتى 200,000 ج (شريحة 130,000 بـ 20%).</td></tr>
+                        <tr><td><strong>من 200,000 إلى 400,000 ج</strong></td><td>22.5%</td><td><strong>15,250 ج</strong></td><td>0.775</td><td>تدرج الشرائح حتى 400,000 ج (شريحة 200,000 بـ 22.5%).</td></tr>
+                        <tr><td><strong>من 400,000 إلى 600,000 ج</strong></td><td>25%</td><td><strong>25,250 ج</strong></td><td>0.75</td><td>تدرج الشرائح حتى 600,000 ج (شريحة 200,000 بـ 25%).</td></tr>
+                        <tr><td><strong>من 600,000 إلى 700,000 ج</strong></td><td>25%</td><td><strong>21,250 ج</strong></td><td>0.75</td><td>فئة وعاء 600 إلى 700 ألف.</td></tr>
+                        <tr><td><strong>من 700,000 إلى 800,000 ج</strong></td><td>25%</td><td><strong>18,500 ج</strong></td><td>0.75</td><td>فئة وعاء 700 إلى 800 ألف.</td></tr>
+                        <tr><td><strong>من 800,000 إلى 900,000 ج</strong></td><td>25%</td><td><strong>15,000 ج</strong></td><td>0.75</td><td>فئة وعاء 800 إلى 900 ألف.</td></tr>
+                        <tr><td><strong>من 900,000 إلى 1,200,000 ج</strong></td><td>25%</td><td><strong>10,000 ج</strong></td><td>0.75</td><td>فئة وعاء 900 ألف إلى 1.2 مليون.</td></tr>
+                        <tr><td><strong>أكثر من 1,200,000 ج</strong></td><td>27.5%</td><td><strong>30,000 ج</strong></td><td>0.725</td><td>الشريحة الكبرى فوق 1.2 مليون (27.5%).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ كصورة</button>';
+    showModal("جدول الثوابت والشرائح الضريبية الشامل", tableHTML);
+}
+
+function openTaxConstantExplanationModal() {
+    var explanationHTML = `
+        <p style="margin-bottom:10px;"><strong>دليل الثابت الضريبي وفروق النسب الكاملة (Gross-up Constants):</strong></p>
+        <p style="font-size:0.88rem; margin-bottom:12px; line-height:1.6;">
+            في حسبة التعلية الجبرية، يتم استخدام معادلة الثابت الضريبي لكل نطاق وعاء بدقة تامة لضمان مطابقة مصلحة الضرائب المصرية بنسبة مئة بالمئة.
+        </p>
+    `;
+    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ كصورة</button>';
+    showModal("شرح الثوابت الضريبية وفروق النسب", explanationHTML);
+}
+
+function saveModalAsImage() {
+    var targetElement = document.getElementById('modalContentArea');
+    var actionsBar = document.getElementById('modalActionsBar');
+    actionsBar.style.display = 'none';
+    html2canvas(targetElement, { scale: 2, backgroundColor: null }).then(function(canvas) {
+        actionsBar.style.display = 'flex';
+        var link = document.createElement('a');
+        link.download = 'جدول_الثوابت_الضريبية.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }).catch(function(err) {
+        actionsBar.style.display = 'flex';
+        alert("حدث خطأ أثناء حفظ الصورة: " + err.message);
+    });
+}
+
+function openBatchResultsModal() {
+    if (!batchEmployeesData || batchEmployeesData.length === 0) {
+        alert("لا توجد بيانات مستوردة أو محسوبة للعرض. برجاء استيراد ملف الإكسيل والضغط على زر الاحتساب (⚡) أولاً.");
+        return;
+    }
+    
+    var tableHTML = `
+        <p style="margin-bottom:8px;"><strong>نتائج حساب التعلية والمكافأة (من أول رقم الصرف حتى الوعاء السنوي النهائي):</strong></p>
+        <div class="tax-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم الصرف</th>
+                        <th>اسم الموظف</th>
+                        <th>الاستحقاقات</th>
+                        <th>التعلية</th>
+                        <th>المكافأة شاملة التعلية</th>
+                        <th>الوعاء السنوي النهائي</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    for (var i = 0; i < batchEmployeesData.length; i++) {
+        var emp = batchEmployeesData[i];
+        var payId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']) || '-';
+        var name = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']) || '-';
+        var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
+        var add = parseFloat(emp['التعلية']) || 0;
+        var totalWithAdd = parseFloat(emp['المكافأة شاملة التعلية']) || gross;
+        var finalBase = parseFloat(emp['الوعاء السنوي النهائي']) || 0;
+        
+        tableHTML += `
+            <tr>
+                <td>${payId}</td>
+                <td style="text-align:right;">${name}</td>
+                <td>${gross.toFixed(2)}</td>
+                <td style="color:var(--blue-primary); font-weight:bold;">${add.toFixed(2)}</td>
+                <td style="font-weight:bold;">${totalWithAdd.toFixed(2)}</td>
+                <td>${finalBase.toFixed(2)}</td>
+            </tr>
+        `;
+    }
+    
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كصورة</button>';
+    showModal("عرض نتائج حساب التعلية الشاملة", tableHTML);
+}
 
 try {
     let saved = localStorage.getItem('persistentEmployees2274');
@@ -1044,13 +1077,13 @@ function runBatchCalculation() {
         count++;
     }
 
-    document.getElementById('batchStatus').innerText = "تم احتساب النتائج لـ " + count + " موظفاً بنجاح تام! يمكنك الآن الحفظ عبر زر (💾).";
-    alert("تم الانتهاء من احتساب التعلية والمكافأة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الآن حفظ الملف على جهازك.");
+    document.getElementById('batchStatus').innerText = "تم احتساب النتائج لـ " + count + " موظفاً بنجاح تام! يمكنك العرض (👁️) أو الحفظ (💾).";
+    alert("تم الانتهاء من احتساب التعلية والمكافأة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الضغط على أيقونة العين (👁️) لعرض الجدول أو الحفظ عبر زر (💾).");
 }
 
 function exportBatchExcel() {
     if (!batchEmployeesData || batchEmployeesData.length === 0) {
-        alert("لا توجد بيانات محسوبة للحفظ. يجيب استيراد واحتساب الملف أولاً.");
+        alert("لا توجد بيانات محسوبة للحفظ. يجب استيراد واحتساب الملف أولاً.");
         return;
     }
 
@@ -1278,12 +1311,6 @@ function closeAllDropdowns() {
     var dropdowns = document.querySelectorAll('.custom-dropdown');
     dropdowns.forEach(function(d) { d.classList.add('hidden-dropdown'); });
 }
-
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.input-group')) {
-        closeAllDropdowns();
-    }
-});
 
 function fillEmployeeData(matchedEmp, systemNum) {
     var nameVal = getVal(matchedEmp, ['اسم الموظف', 'الاسم', 'Name']);
@@ -1701,14 +1728,6 @@ function calcETATaxFromTable(rawAnnualIncome) {
     return generateETABreakdownHTML(inc, false).tax;
 }
 
-function openExplanationModal(type) {
-    if (type === 'bracket') {
-        showModal("شرح اختيار الفئة الضريبية والوعاء الإجمالي", modalExplanations.bracket);
-    } else if (type === 'formula') {
-        showModal("شرح معادلة التعلية الجبرية وأصل الثابت الضريبي", modalExplanations.formula);
-    }
-}
-
 function showModal(title, htmlContent) {
     document.getElementById('modalTitle').innerText = title;
     document.getElementById('modalBody').innerHTML = htmlContent;
@@ -1799,68 +1818,18 @@ function calculateTaxETA() {
 
         var taxConstant = 0;
         var marginalComplement = 1;
-        var marginalRatePercent = "0%";
-        var bracketLabel = "";
-        var grossRangeText = "";
-        var netRangeText = "";
-        var constantDerivationHtml = "";
 
-        if (rhsTarget > 900000) {
-            taxConstant = 30000;
-            marginalComplement = 0.725;
-            marginalRatePercent = "27.5%";
-            bracketLabel = "أكثر من 1,200,000 ج (سعر 27.5% | الثابت 30,000)";
-        } else if (rhsTarget > 685000) {
-            taxConstant = 10000;
-            marginalComplement = 0.75;
-            marginalRatePercent = "25%";
-            bracketLabel = "من 900,000 إلى 1,200,000 ج (سعر 25% | الثابت 10,000)";
-        } else if (rhsTarget > 615000) {
-            taxConstant = 15000;
-            marginalComplement = 0.75;
-            marginalRatePercent = "25%";
-            bracketLabel = "من 800,000 إلى 900,000 ج (سعر 25% | الثابت 15,000)";
-        } else if (rhsTarget > 543500) {
-            taxConstant = 18500;
-            marginalComplement = 0.75;
-            marginalRatePercent = "25%";
-            bracketLabel = "من 700,000 إلى 800,000 ج (سعر 25% | الثابت 18,500)";
-        } else if (rhsTarget > 471250) {
-            taxConstant = 21250;
-            marginalComplement = 0.75;
-            marginalRatePercent = "25%";
-            bracketLabel = "من 600,000 إلى 700,000 ج (سعر 25% | الثابت 21,250)";
-        } else if (rhsTarget > 325250) {
-            taxConstant = 25250;
-            marginalComplement = 0.75;
-            marginalRatePercent = "25%";
-            bracketLabel = "من 400,000 إلى 600,000 ج (سعر 25% | الثابت 25,250)";
-        } else if (rhsTarget > 170250) {
-            taxConstant = 15250;
-            marginalComplement = 0.775;
-            marginalRatePercent = "22.5%";
-            bracketLabel = "من 200,000 إلى 400,000 ج (سعر 22.5% | الثابت 15,250)";
-        } else if (rhsTarget > 66250) {
-            taxConstant = 10250;
-            marginalComplement = 0.80;
-            marginalRatePercent = "20%";
-            bracketLabel = "من 70,000 إلى 200,000 ج (سعر 20% | الثابت 10,250)";
-        } else if (rhsTarget > 53500) {
-            taxConstant = 6750;
-            marginalComplement = 0.85;
-            marginalRatePercent = "15%";
-            bracketLabel = "من 55,000 إلى 70,000 ج (سعر 15% | الثابت 6,750)";
-        } else if (rhsTarget > 40000) {
-            taxConstant = 4000;
-            marginalComplement = 0.90;
-            marginalRatePercent = "10%";
-            bracketLabel = "من 40,000 إلى 55,000 ج (سعر 10% | الثابت 4,000)";
-        } else {
-            taxConstant = 0;
-            marginalComplement = 1.00;
-            marginalRatePercent = "0%";
-            bracketLabel = "معفى حتى 40,000 ج (سعر 0% | الثابت 0)";
-        }
+        if (rhsTarget > 900000) { taxConstant = 30000; marginalComplement = 0.725; }
+        else if (rhsTarget > 685000) { taxConstant = 10000; marginalComplement = 0.75; }
+        else if (rhsTarget > 615000) { taxConstant = 15000; marginalComplement = 0.75; }
+        else if (rhsTarget > 543500) { taxConstant = 18500; marginalComplement = 0.75; }
+        else if (rhsTarget > 471250) { taxConstant = 21250; marginalComplement = 0.75; }
+        else if (rhsTarget > 325250) { taxConstant = 25250; marginalComplement = 0.75; }
+        else if (rhsTarget > 170250) { taxConstant = 15250; marginalComplement = 0.775; }
+        else if (rhsTarget > 66250) { taxConstant = 10250; marginalComplement = 0.80; }
+        else if (rhsTarget > 53500) { taxConstant = 6750; marginalComplement = 0.85; }
+        else if (rhsTarget > 40000) { taxConstant = 4000; marginalComplement = 0.90; }
+        else { taxConstant = 0; marginalComplement = 1.00; }
 
         var b1Raw = (rhsTarget - taxConstant) / marginalComplement;
         var b1Rounded10 = Math.floor(b1Raw / 10) * 10;
@@ -1872,24 +1841,12 @@ function calculateTaxETA() {
         totalAddition = parseFloat(Math.max(0, newPeriodTaxGrossUp - effectiveT0).toFixed(2));
         totalWithAddition = parseFloat((gross + totalAddition).toFixed(2));
 
-        modalExplanations.bracket = 
-            "<div class='modal-highlight-box'>" +
-            "<p><strong>الفئة الضريبية المختارة لهذا الوعاء:</strong> " + bracketLabel + "</p>" +
-            "<p><strong>الوعاء الصافي السنوي المستهدف (بعد الضريبة):</strong> " + rhsTarget.toFixed(2) + " ج.م</p>" +
-            "<p><strong>الوعاء السنوي الإجمالي (قبل خصم الضريبة):</strong> " + b1Raw.toFixed(2) + " ج.م</p>" +
-            "</div>";
-
-        modalExplanations.formula = 
-            "<p><strong>كيف تعمل معادلة التعلية الجبرية؟</strong></p>" +
-            "<div class='modal-formula-box'>الوعاء الإجمالي = (الوعاء الصافي المستهدف - الثابت الضريبي) ÷ مكمل الشريحة الحدية</div>";
-
         additionHtml += "<div class='breakdown-item'><span>1. إجمالي الوعاء السابق المجمع:</span><span>" + effectiveB0.toFixed(2) + " ج.م</span></div>";
         additionHtml += "<div class='breakdown-item'><span>2. الضريبة السابقة المنسبة ومعامل المدة:</span><span>" + effectiveT0.toFixed(2) + " ج.م</span></div>";
         additionHtml += "<div class='breakdown-item'><span>3. صافي المكافأة الحالية المنسب سنوياً:</span><span>" + annualizedNetBonus.toFixed(2) + " ج.م</span></div>";
         additionHtml += "<div class='breakdown-item'><span>4. الوعاء الصافي السنوي المستهدف:</span><span>" + rhsTarget.toFixed(2) + " ج.م</span></div>";
-        additionHtml += "<div class='breakdown-item'><span>5. الفئة الضريبية المطبقة:</span><span>" + bracketLabel + "</span></div>";
-        additionHtml += "<div class='breakdown-item'><span>6. الوعاء السنوي النهائي مقرباً لأقرب 10 جنيهات أقل:</span><span>" + b1Rounded10.toFixed(2) + " ج.م</span></div>";
-        additionHtml += "<div class='breakdown-item'><span>7. ضريبة المكافأة المستقطعة (التعلية النهائية):</span><span>" + totalAddition.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>5. الوعاء السنوي النهائي مقرباً لأقرب 10 جنيهات أقل:</span><span>" + b1Rounded10.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>6. ضريبة المكافأة المستقطعة (التعلية النهائية):</span><span>" + totalAddition.toFixed(2) + " ج.م</span></div>";
     } else {
         additionHtml = "<div class='breakdown-item'><span>لا يوجد صافي مكافأة خاضع للتعلية.</span><span>0.00 ج.م</span></div>";
     }
