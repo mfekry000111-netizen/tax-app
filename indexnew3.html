@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حساب ضريبة المرتبات - شركة الدلتا للسكر</title>
+    <!-- مكتبة قراءة وكتابة ملفات الإكسيل SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --blue-primary: #1d4ed8;
+            --blue-light: #eff6ff;
+            --blue-border: #93c5fd;
+            --gray-light: #f8fafc;
+            --gray-border: #cbd5e1;
+            --pink-btn-bg: #f43f5e;
+            --pink-btn-hover: #e11d48;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        
+        body { 
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 30px 15px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start;
+        }
+
+        .app-card { 
+            background: var(--card-bg); 
+            width: 100%; 
+            max-width: 950px; 
+            border-radius: 20px; 
+            padding: 30px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(30, 41, 59, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .top-actions-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .image-upload-container {
+            width: 75px;
+            height: 75px;
+            border: 2px dashed var(--blue-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: var(--blue-light);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(29, 78, 216, 0.15);
+        }
+        .image-upload-container:hover { 
+            border-color: #1e40af; 
+            transform: scale(1.06);
+            background: #dbeafe;
+        }
+        .image-upload-container input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .image-upload-container .plus-icon {
+            font-size: 2.5rem;
+            color: var(--blue-primary);
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        #fileStatus {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-weight: 600;
+            background: var(--gray-light);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--gray-border);
+        }
+
+        h2 { 
+            text-align: center; 
+            color: #1e3a8a;
+            margin-bottom: 25px; 
+            font-size: 1.7rem; 
+            font-weight: 800;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .nav-tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 25px; 
+            background: var(--gray-light); 
+            padding: 6px; 
+            border-radius: 14px; 
+            border: 1px solid var(--gray-border);
+        }
+        .nav-tab { 
+            flex: 1; 
+            padding: 12px; 
+            text-align: center; 
+            background: transparent; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            color: var(--text-muted); 
+            transition: all 0.2s ease;
+        }
+        .nav-tab:hover {
+            color: var(--blue-primary);
+            background: #e2e8f0;
+        }
+        .nav-tab.active { 
+            background: #1e3a8a; 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+
+        /* القائمة المنسدلة الذكية */
+        .custom-dropdown {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            max-height: 160px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--gray-border);
+            border-radius: 10px;
+            z-index: 9999;
+            box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 4px;
+        }
+        .dropdown-item {
+            padding: 9px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 600;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
+        }
+        .dropdown-item:hover {
+            background: var(--blue-light);
+            color: var(--blue-primary);
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .hidden-dropdown {
+            display: none !important;
+        }
+
+        .radio-group-inline {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            background: #ffffff;
+            padding: 11px 14px;
+            border: 1px solid var(--gray-border);
+            border-radius: 10px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--blue-primary);
+        }
+
+        .section-box {
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 1px solid var(--gray-border);
+            background: var(--gray-light);
+            transition: all 0.2s ease;
+        }
+
+        .section-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed var(--gray-border);
+            padding-bottom: 6px;
+        }
+
+        .section-title { 
+            color: #1e3a8a; 
+            font-weight: 700; 
+            font-size: 1.05rem; 
+            margin-bottom: 0;
+        }
+
+        .small-reset-btn {
+            background: var(--pink-btn-bg);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(244, 63, 94, 0.3);
+        }
+        .small-reset-btn:hover {
+            background: var(--pink-btn-hover);
+            transform: translateY(-1px);
+        }
+        
+        .input-group { margin-bottom: 12px; position: relative; }
+        .input-group:last-child { margin-bottom: 0; }
+        
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-size: 0.9rem; 
+            color: var(--text-main); 
+            font-weight: 600; 
+        }
+        input, select { 
+            width: 100%; 
+            padding: 11px 14px; 
+            border: 1px solid var(--gray-border); 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            background: #ffffff; 
+            color: var(--text-main);
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+        }
+
+        button.action-btn { 
+            width: 100%; 
+            padding: 14px; 
+            background: #1e3a8a; 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.1rem; 
+            font-weight: 700; 
+            margin-top: 12px; 
+            cursor: pointer; 
+            transition: all 0.25s ease;
+            box-shadow: 0 6px 15px rgba(30, 58, 138, 0.25);
+        }
+        button.action-btn:hover {
+            background: var(--blue-primary);
+            transform: translateY(-1px);
+        }
+
+        .results { 
+            margin-top: 25px; 
+            background: var(--gray-light); 
+            color: var(--text-main);
+            padding: 24px; 
+            border-radius: 16px; 
+            border: 1px solid var(--gray-border); 
+        }
+        
+        .result-box-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+            padding: 11px 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: #ffffff;
+            border: 1px solid var(--gray-border);
+            color: var(--text-main);
+        }
+        .result-box-item span:last-child { 
+            font-weight: 700; 
+            color: var(--blue-primary);
+        }
+
+        .box-net-final { 
+            background: #1e3a8a; 
+            border: 1px solid #1d4ed8; 
+            color: #ffffff; 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+        }
+        .box-net-final span { color: #ffffff !important; }
+        .box-net-final span:last-child { font-size: 1.3rem; font-weight: 800; }
+
+        .box-addition-final {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+        }
+        .box-addition-final span { color: #ffffff !important; }
+        .box-addition-final span:last-child { font-size: 1.2rem; font-weight: 800; color: #38bdf8 !important; }
+
+        .tax-breakdown-wrapper {
+            background: #ffffff;
+            border: 1px solid var(--gray-border);
+            border-radius: 10px;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        .breakdown-box { 
+            display: flex;
+            flex-direction: column;
+            gap: 4px; 
+        }
+
+        .breakdown-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-radius: 6px; 
+            padding: 6px 10px; 
+            font-size: 0.85rem; 
+            font-weight: 600;
+            background: var(--gray-light);
+            border: 1px solid #e2e8f0;
+            color: var(--text-main);
+        }
+        .breakdown-item span:last-child { 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            color: var(--blue-primary); 
+        }
+
+        .sub-breakdown-container {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin: 4px 0 6px 0;
+        }
+        .sub-breakdown-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #93c5fd;
+        }
+        .sub-breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e293b;
+            padding: 3px 6px;
+            background: #ffffff;
+            border-radius: 5px;
+            margin-bottom: 3px;
+            border: 1px solid #dbeafe;
+        }
+        .sub-breakdown-item:last-child { margin-bottom: 0; }
+        .sub-breakdown-item span:last-child {
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+
+        .info-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 6px;
+            border: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+        .info-btn:hover {
+            background: #1d4ed8;
+            transform: scale(1.08);
+        }
+
+        /* أزرار العلامات والأسهم التفاعلية بجوار عنوان حسبة التعلية */
+        .batch-actions-bar {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .icon-action-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .icon-action-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        .icon-action-btn input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .icon-action-btn.calc { background: #059669; }
+        .icon-action-btn.calc:hover { background: #047857; }
+        .icon-action-btn.save { background: #7c3aed; }
+        .icon-action-btn.save:hover { background: #6d28d9; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 15px;
+        }
+        .modal-content {
+            background: #ffffff;
+            width: 100%;
+            max-width: 650px;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--gray-border);
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        .modal-title {
+            color: #1e3a8a;
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+        .modal-close {
+            background: #f1f5f9;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #64748b;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .modal-close:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .modal-body {
+            font-size: 0.92rem;
+            color: var(--text-main);
+            line-height: 1.65;
+        }
+        .modal-body p { margin-bottom: 10px; }
+        .modal-body ul { margin-right: 18px; margin-bottom: 12px; }
+        .modal-body li { margin-bottom: 6px; }
+        .modal-highlight-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .modal-formula-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 8px 0;
+            font-family: monospace, 'Segoe UI';
+            font-weight: 700;
+            color: #0f172a;
+            direction: rtl;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 640px) {
+            body { padding: 10px 5px; }
+            .app-card { padding: 15px; }
+            h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div class="top-actions-container">
+        <div class="image-upload-container" title="تحديث ملف الإكسيل">
+            <span class="plus-icon" id="plusSign">+</span>
+            <input type="file" accept=".xlsx, .xls" id="excelInput" onchange="importEmployeeExcel(event)">
+        </div>
+    </div>
+    <div id="fileStatus">جاري التحقق من بيانات العاملين...</div>
+
+    <h2>تطبيق حساب ضريبة المرتبات - شركة الدلتا للسكر</h2>
+    
+    <div class="nav-tabs">
+        <button type="button" class="nav-tab active" id="tab1Btn" onclick="switchSystem(1)">ضريبة الشيك الشهري</button>
+        <button type="button" class="nav-tab" id="tab2Btn" onclick="switchSystem(2)">مصلحة الضرائب المصرية</button>
+    </div>
+
+    <!-- 1. ضريبة الشيك الشهرية -->
+    <div id="system1">
+        <div class="section-box">
+            <div class="section-header-flex">
+                <div class="section-title">أولاً: بيانات العامل</div>
+                <button type="button" class="small-reset-btn" onclick="resetSystem(1)">تفريغ البيانات</button>
+            </div>
+            <div class="input-group">
+                <label>اسم الموظف أو رقم الصرف (ابحث بأي أسماء متفرقة أو برقم الصرف):</label>
+                <input type="text" id="s1_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" oninput="filterCustomDropdown(1)" onfocus="filterCustomDropdown(1)">
+                <div id="s1_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>رقم الصرف:</label>
+                <input type="text" id="s1_payId" placeholder="ابحث برقم الصرف..." autocomplete="off" oninput="filterPayIdDropdown(1)" onfocus="filterPayIdDropdown(1)">
+                <div id="s1_payId_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>الرقم القومي:</label>
+                <input type="text" id="s1_natId" placeholder="ابحث بالرقم القومي..." autocomplete="off" oninput="filterNatIdDropdown(1)" onfocus="filterNatIdDropdown(1)">
+                <div id="s1_natId_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>رقم التليفون:</label>
+                <input type="text" id="s1_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(1)" onfocus="filterPhoneDropdown(1)">
+                <div id="s1_phone_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">ثانياً: الاستحقاقات ومدة العمل الثابتة</div>
+            <div class="input-group">
+                <label>إجمالي الاستحقاقات (جنية):</label>
+                <input type="number" id="grossSalary" value="" placeholder="أدخل الاستحقاقات">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>مدة العمل الشهرية (ثابتة):</label>
+                <input type="number" id="attendanceDays" value="30" readonly style="background:#f1f5f9; color:#334155; font-weight:bold;">
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">ثالثاً: الاستقطاعات والإعفاءات الشهرية</div>
+            <div class="input-group">
+                <label>المعاملة الضريبية:</label>
+                <div class="radio-group-inline">
+                    <label class="radio-option">
+                        <input type="radio" name="s1_taxTreatment" id="s1_opt_none" value="none" checked onchange="toggleDisabilityField()"> بدون إعاقة
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="s1_taxTreatment" id="s1_opt_disability" value="disability" onchange="toggleDisabilityField()"> ذوي الإعاقة
+                    </label>
+                </div>
+            </div>
+            <div class="input-group" id="s1_disabilityGroup" style="display: none; margin-top: 10px;">
+                <label>إعفاء الإعاقة (جنية - قابل للتعديل):</label>
+                <input type="number" id="s1_disabilityEx" value="0" placeholder="833.33">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>العلاوة المنضمة (جنية):</label>
+                <input type="number" id="allowance" value="" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>التأمينات الاجتماعية (جنية):</label>
+                <input type="number" id="insurance" value="" placeholder="1670">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>قسط مدة سابقة (جنية):</label>
+                <input type="number" id="prevLoan" value="" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>اشتراكات الصناديق (جنية):</label>
+                <input type="number" id="funds" value="" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>الإعفاء الشخصي والشريحة الشهري:</label>
+                <input type="number" id="personalExemption" value="5000" readonly style="background:#f1f5f9;">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>الأرباح (جنية):</label>
+                <input type="number" id="otherExemption" value="" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>استقطاعات أخرى (سكر ومحمول وشهدا وغيره):</label>
+                <input type="number" id="otherDeductions" value="" placeholder="0">
+            </div>
+        </div>
+
+        <button type="button" class="action-btn" onclick="calculateTax()">حساب ضريبة الشيك والصافي</button>
+
+        <div class="results" id="resultsBox" style="display: none;">
+            <div class="result-box-item">
+                <span>إجمالي المرتب الشامل:</span>
+                <span id="resGross">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>إجمالي الإعفاءات الشهرية:</span>
+                <span id="resTotalExemptions">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>المبلغ الخاضع للضريبة:</span>
+                <span id="resMonthlyTaxable">0 ج.م</span>
+            </div>
+            
+            <div class="section-title" style="font-size:0.95rem; margin-top:15px; border-bottom:1px dashed var(--gray-border); padding-bottom:6px; margin-bottom:12px;">تفصيل التشريح الضريبي للشيك:</div>
+            <div class="tax-breakdown-wrapper">
+                <div class="breakdown-box" id="bracketsBreakdown"></div>
+            </div>
+
+            <div class="result-box-item" style="margin-top: 12px;">
+                <span>إجمالي الضريبة المستقطعة:</span>
+                <span id="monthlyTax">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>استقطاعات أخرى (سكر، محمول، شهداء، وغيرها):</span>
+                <span id="resOtherDeductions">0 ج.م</span>
+            </div>
+            <div class="result-box-item box-net-final" id="netSalaryBox">
+                <span>صافي الراتب النهائي:</span>
+                <span id="netSalary">0 ج.م</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. نظام مصلحة الضرائب المصرية -->
+    <div id="system2" class="hidden">
+        <div class="section-box">
+            <div class="section-header-flex">
+                <div class="section-title">أولاً: بيانات العامل</div>
+                <button type="button" class="small-reset-btn" onclick="resetSystem(2)">تفريغ البيانات</button>
+            </div>
+            <div class="input-group">
+                <label>اسم الموظف أو رقم الصرف (ابحث بأي أسماء متفرقة أو برقم الصرف):</label>
+                <input type="text" id="s2_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" oninput="filterCustomDropdown(2)" onfocus="filterCustomDropdown(2)">
+                <div id="s2_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>رقم الصرف:</label>
+                <input type="text" id="s2_payId" placeholder="ابحث برقم الصرف..." autocomplete="off" oninput="filterPayIdDropdown(2)" onfocus="filterPayIdDropdown(2)">
+                <div id="s2_payId_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>الرقم القومي:</label>
+                <input type="text" id="s2_natId" placeholder="ابحث بالرقم القومي..." autocomplete="off" oninput="filterNatIdDropdown(2)" onfocus="filterNatIdDropdown(2)">
+                <div id="s2_natId_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>رقم التليفون:</label>
+                <input type="text" id="s2_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(2)" onfocus="filterPhoneDropdown(2)">
+                <div id="s2_phone_dropdown" class="custom-dropdown hidden-dropdown"></div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">ثانياً: بيانات الوعاء والضريبة السابقة</div>
+            <div class="input-group">
+                <label>آخر وعاء سابق (جنية):</label>
+                <input type="number" id="s2_prevBase" value="" placeholder="فارغ إن لم يوجد">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>مدة العمل الخاصة بأخر وعاء سابق (أيام):</label>
+                <input type="number" id="s2_prevWorkDays" value="" placeholder="فارغ إن لم يوجد">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>ضريبة آخر وعاء سابق (جنية):</label>
+                <input type="number" id="s2_prevTax" value="" placeholder="فارغ إن لم يوجد">
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">ثالثاً: الاستحقاقات (الفترة الحالية)</div>
+            <div class="input-group">
+                <label>إجمالي الاستحقاقات (المرتب والبدلات والحوافز) (جنية):</label>
+                <input type="number" id="s2_gross" value="" placeholder="أدخل استحقاقات الفترة">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>مدة العمل بالفترة (أيام):</label>
+                <input type="number" id="s2_days" value="30" placeholder="0" oninput="updatePersonalEx()">
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">رابعاً: الإعفاءات (الفترة الحالية)</div>
+            <div class="input-group">
+                <label>المعاملة الضريبية:</label>
+                <div class="radio-group-inline">
+                    <label class="radio-option">
+                        <input type="radio" name="s2_taxTreatment" id="s2_opt_none" value="none" checked onchange="updatePersonalEx()"> بدون إعاقة
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="s2_taxTreatment" id="s2_opt_disability" value="disability" onchange="updatePersonalEx()"> ذوي الإعاقة
+                    </label>
+                </div>
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>الإعفاء الشخصي بالفترة (جنية - منسب تلقائياً وقابل للتعديل):</label>
+                <input type="number" id="s2_personalEx" value="" placeholder="0" oninput="updateDisabilityEx()">
+            </div>
+            <div class="input-group" id="disabilityGroup" style="margin-top: 10px;">
+                <label>إعفاء الإعاقة (جنية - بحد أقصى 833.33):</label>
+                <input type="number" id="s2_disabilityEx" value="0" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>العلاوة المنضمة (جنية - منسبة تلقائياً وقابلة للتعديل):</label>
+                <input type="number" id="s2_allowance" value="" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>التأمينات الاجتماعية (جنية):</label>
+                <input type="number" id="s2_insurance" value="" placeholder="1670">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>قسط مدة سابقة (جنية):</label>
+                <input type="number" id="s2_prevLoan" value="" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>الصناديق الخاصة (مدخل يدوي):</label>
+                <input type="number" id="s2_funds" value="" placeholder="0">
+            </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <label>الأرباح / إعفاءات أخرى (جنية):</label>
+                <input type="number" id="s2_profits" value="" placeholder="0">
+            </div>
+        </div>
+
+        <button type="button" class="action-btn" onclick="calculateTaxETA()">حساب ضريبة مصلحة الضرائب والتعلية</button>
+
+        <div class="results" id="s2_resultsBox" style="display: none;">
+            <div class="result-box-item">
+                <span>إجمالي استحقاقات الفترة الحالية:</span>
+                <span id="s2_resGross">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>صافي الدخل قبل الصناديق:</span>
+                <span id="s2_resNetBeforeFunds">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>إجمالي الصناديق المحتسبة:</span>
+                <span id="s2_resFinalFunds">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>إجمالي إعفاءات الفترة الحالية:</span>
+                <span id="s2_resExemptions">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>صافي دخل الفترة الحالية:</span>
+                <span id="s2_resPeriodNet">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>صافي دخل الوعاء السابق:</span>
+                <span id="s2_resPrevNet">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>مجموع مدة العمل المجمعة:</span>
+                <span id="s2_resTotalDays">0 يوم</span>
+            </div>
+            <div class="result-box-item">
+                <span>الوعاء السنوي المجمع (بدون تقريب):</span>
+                <span id="s2_resAnnualBase">0 ج.م</span>
+            </div>
+            
+            <div class="section-title" style="font-size:0.95rem; margin-top:15px; border-bottom:1px dashed var(--gray-border); padding-bottom:6px; margin-bottom:12px;">تفصيل التشريح السنوي للضريبة المجمعة:</div>
+            <div class="tax-breakdown-wrapper">
+                <div class="breakdown-box" id="s2_breakdown"></div>
+            </div>
+
+            <div class="result-box-item" style="margin-top: 12px;">
+                <span>إجمالي الضريبة السنوية المجمعة:</span>
+                <span id="s2_annualTax">0 ج.م</span>
+            </div>
+            <div class="result-box-item">
+                <span>ضريبة الفترة المجمعة (المنسوبة للأيام):</span>
+                <span id="s2_combinedPeriodTax">0 ج.م</span>
+            </div>
+            <div class="result-box-item box-net-final" id="s2_periodTaxBox">
+                <span>ضريبة الفترة المستقطعة النهائية:</span>
+                <span id="s2_periodTax">0 ج.م</span>
+            </div>
+
+            <!-- تفصيل حسبة التعلية المضافة ومعها أزرار العلامات والأسهم الجماعية -->
+            <div class="section-header-flex" style="margin-top: 20px;">
+                <div class="section-title" style="font-size:0.95rem; margin-bottom:0; border:none; padding:0;">تفصيل حسبة التعلية (Gross-up تفصيلي):</div>
+                <div class="batch-actions-bar">
+                    <button type="button" class="icon-action-btn" title="استيراد ملف إكسيل لأكثر من 2500 عامل">
+                        📁<input type="file" accept=".xlsx, .xls" id="batchExcelInput" onchange="importBatchExcel(event)">
+                    </button>
+                    <button type="button" class="icon-action-btn calc" title="احتساب التعلية للجميع دفعة واحدة" onclick="runBatchCalculation()">
+                        ⚡
+                    </button>
+                    <button type="button" class="icon-action-btn save" title="حفظ النتائج في ملف إكسيل" onclick="exportBatchExcel()">
+                        💾
+                    </button>
+                </div>
+            </div>
+            <div id="batchStatus" style="font-size: 0.85rem; color: #1e3a8a; font-weight: 600; margin-bottom: 8px;"></div>
+
+            <div class="tax-breakdown-wrapper">
+                <div class="breakdown-box" id="s2_additionBreakdown"></div>
+            </div>
+
+            <div class="result-box-item box-addition-final" style="margin-top: 12px;">
+                <span>إجمالي التعلية:</span>
+                <span id="s2_additionAmount">0 ج.م</span>
+            </div>
+            <div class="result-box-item box-addition-final" id="s2_totalAdditionBox">
+                <span>المكافأة شاملة التعلية:</span>
+                <span id="s2_totalWithAddition">0 ج.م</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة منبثقة عامة للتوضيح (Modal) -->
+<div id="infoModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">عنوان التوضيح</div>
+            <button type="button" class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- محتوى الشرح التوضيحي -->
+        </div>
+    </div>
+</div>
+
+<script>
+let globalEmployeesData = [];
+let currentRawAllowance = 0;
+let s2_employeeSelected = false;
+let batchEmployeesData = []; // مخزن بيانات العاملين للاستيراد الجماعي
+
+let modalExplanations = {
+    bracket: "",
+    formula: ""
+};
+
+try {
+    let saved = localStorage.getItem('persistentEmployees2274');
+    if (saved) {
+        globalEmployeesData = JSON.parse(saved);
+        document.getElementById('fileStatus').innerText = "تم تحميل بيانات العاملين الدائمة بنجاح (" + globalEmployeesData.length + " موظفاً محفوظين بالبرنامج)";
+    } else {
+        document.getElementById('fileStatus').innerText = "برجاء رفع ملف الإكسيل لمرة واحدة فقط ليتم حفظه داخل البرنامج للأبد";
+    }
+} catch(e) {
+    globalEmployeesData = [];
+}
+
+function normalizeArabic(text) {
+    if (text === undefined || text === null) return "";
+    return text
+        .toString()
+        .replace(/[\u064B-\u0652]/g, "")
+        .replace(/[أإآا]/g, "ا")
+        .replace(/ى/g, "ي")
+        .replace(/ة/g, "ه")
+        .trim()
+        .toLowerCase();
+}
+
+function cleanPhone(phone) {
+    if (!phone) return "";
+    var cleaned = phone.toString().replace(/\D/g, "").trim();
+    if (cleaned.length === 10 && !cleaned.startsWith('0')) {
+        cleaned = '0' + cleaned;
+    }
+    return cleaned;
+}
+
+function importEmployeeExcel(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var data = new Uint8Array(e.target.result);
+        var workbook = XLSX.read(data, {type: 'array'});
+        var firstSheetName = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[firstSheetName];
+        
+        globalEmployeesData = XLSX.utils.sheet_to_json(worksheet);
+        localStorage.setItem('persistentEmployees2274', JSON.stringify(globalEmployeesData));
+        
+        document.getElementById('fileStatus').innerText = "تم حفظ وتثبيت بيانات الـ " + globalEmployeesData.length + " موظفاً في البرنامج للأبد بنجاح!";
+        alert("تم حفظ بيانات العاملين بداخل البرنامج بنجاح!");
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// دالة استيراد ملف الإكسيل الجماعي (لأكثر من 2500 عامل)
+function importBatchExcel(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, {type: 'array'});
+            var firstSheetName = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[firstSheetName];
+            batchEmployeesData = XLSX.utils.sheet_to_json(worksheet);
+            
+            document.getElementById('batchStatus').innerText = "تم استيراد ملف العاملين بنجاح (" + batchEmployeesData.length + " موظفاً جاهزاً للاحتساب).";
+            alert("تم استيراد ملف الإكسيل بنجاح ويحتوي على " + batchEmployeesData.length + " عاملاً. اضغط على زر الاحتساب (⚡) للبدء.");
+        } catch(err) {
+            alert("حدث خطأ أثناء قراءة ملف الإكسيل: " + err.message);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// دالة الاحتساب الجماعي لكل العمال دفعة واحدة
+function runBatchCalculation() {
+    if (!batchEmployeesData || batchEmployeesData.length === 0) {
+        alert("برجاء استيراد ملف إكسيل أولاً عن طريق زر الاستيراد (📁).");
+        return;
+    }
+
+    var count = 0;
+    for (var i = 0; i < batchEmployeesData.length; i++) {
+        var emp = batchEmployeesData[i];
+        
+        var prevBase = parseFloat(getVal(emp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase'])) || 0;
+        var prevWorkDays = parseFloat(getVal(emp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'مدة العمل', 'PrevWorkDays', 'أيام'])) || 0;
+        var prevTax = parseFloat(getVal(emp, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
+        var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
+        var workDays = parseFloat(getVal(emp, ['مدة العمل بالفترة', 'أيام الفترة', 'Days'])) || 30;
+
+        // حسابات الفترة والتعلية لكل موظف بدقة
+        var personalEx = (1666.67 / 30) * workDays;
+        var otherExemptionsBeforeFunds = personalEx;
+        var netBeforeFunds = gross - otherExemptionsBeforeFunds;
+        if (netBeforeFunds < 0) netBeforeFunds = 0;
+        
+        var calculatedFundsLimit = netBeforeFunds * 0.15;
+        var funds = Math.min(0, calculatedFundsLimit);
+        var totalExemptionsPeriod = otherExemptionsBeforeFunds + funds;
+        var periodNet = gross - totalExemptionsPeriod;
+        if (periodNet < 0) periodNet = 0;
+
+        var prevPeriodNet = (prevBase / 360) * prevWorkDays;
+        var combinedNetIncome = periodNet + prevPeriodNet;
+        var combinedDays = workDays + prevWorkDays;
+        var annualBase = (combinedNetIncome * 360) / (combinedDays > 0 ? combinedDays : 1);
+        if (annualBase < 0) annualBase = 0;
+
+        var mainTax = calcETATaxFromTable(annualBase);
+        var combinedPeriodTax = (mainTax * combinedDays) / 360;
+        var effectiveDays = (prevWorkDays > 0) ? combinedDays : (workDays > 0 ? workDays : 360);
+        var k = effectiveDays / 360;
+        var effectiveB0 = (prevWorkDays > 0) ? ((prevPeriodNet * 360) / effectiveDays) : prevBase;
+        var effectiveT0 = (prevTax > 0) ? prevTax : ((effectiveB0 > 0) ? parseFloat((calcETATaxFromTable(effectiveB0) * k).toFixed(2)) : 0);
+
+        var totalAddition = 0;
+        var totalWithAddition = gross;
+        var b1Rounded10 = 0;
+
+        if (periodNet > 0 && k > 0) {
+            var annualizedNetBonus = periodNet / k;
+            var annualizedPrevTax = effectiveT0 / k;
+            var rhsTarget = effectiveB0 + annualizedNetBonus - annualizedPrevTax;
+
+            var taxConstant = 0;
+            var marginalComplement = 1;
+
+            if (rhsTarget > 900000) { taxConstant = 30000; marginalComplement = 0.725; }
+            else if (rhsTarget > 685000) { taxConstant = 10000; marginalComplement = 0.75; }
+            else if (rhsTarget > 615000) { taxConstant = 15000; marginalComplement = 0.75; }
+            else if (rhsTarget > 543500) { taxConstant = 18500; marginalComplement = 0.75; }
+            else if (rhsTarget > 471250) { taxConstant = 21250; marginalComplement = 0.75; }
+            else if (rhsTarget > 325250) { taxConstant = 25250; marginalComplement = 0.75; }
+            else if (rhsTarget > 170250) { taxConstant = 15250; marginalComplement = 0.775; }
+            else if (rhsTarget > 66250) { taxConstant = 10250; marginalComplement = 0.80; }
+            else if (rhsTarget > 53500) { taxConstant = 6750; marginalComplement = 0.85; }
+            else if (rhsTarget > 40000) { taxConstant = 4000; marginalComplement = 0.90; }
+            else { taxConstant = 0; marginalComplement = 1.00; }
+
+            var b1Raw = (rhsTarget - taxConstant) / marginalComplement;
+            b1Rounded10 = Math.floor(b1Raw / 10) * 10;
+
+            var newAnnualTaxGrossUp = calcETATaxFromTable(b1Rounded10);
+            var newPeriodTaxGrossUp = parseFloat((newAnnualTaxGrossUp * k).toFixed(2));
+
+            totalAddition = parseFloat(Math.max(0, newPeriodTaxGrossUp - effectiveT0).toFixed(2));
+            totalWithAddition = parseFloat((gross + totalAddition).toFixed(2));
+        }
+
+        // كتابة النتائج في الأعمدة الثلاثة المطلوبة داخل مصفوفة الموظفين
+        emp['التعلية'] = totalAddition;
+        emp['المكافأة شاملة التعلية'] = totalWithAddition;
+        emp['الوعاء السنوي النهائي'] = b1Rounded10;
+        count++;
+    }
+
+    document.getElementById('batchStatus').innerText = "تم احتساب النتائج لـ " + count + " موظفاً بنجاح تام! يمكنك الآن الحفظ عبر زر (💾).";
+    alert("تم الانتهاء من احتساب التعلية والمكافأة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الآن حفظ الملف على جهازك.");
+}
+
+// دالة حفظ وتصدير ملف الإكسيل الناتج
+function exportBatchExcel() {
+    if (!batchEmployeesData || batchEmployeesData.length === 0) {
+        alert("لا توجد بيانات محسوبة للحفظ. يجيب استيراد واحتساب الملف أولاً.");
+        return;
+    }
+
+    try {
+        var worksheet = XLSX.utils.json_to_sheet(batchEmployeesData);
+        var workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "نتائج التعلية");
+        
+        // تصدير الملف ليقوم المستخدم باختيار مكان الحفظ على جهازه
+        XLSX.writeFile(workbook, "نتائج_حساب_التعلية_وضريبة_المرتبات.xlsx");
+        alert("تم حفظ ملف الإكسيل بنجاح على جهازك!");
+    } catch(err) {
+        alert("حدث خطأ أثناء حفظ الملف: " + err.message);
+    }
+}
+
+function getVal(emp, keys) {
+    for (var k = 0; k < keys.length; k++) {
+        var key = keys[k];
+        if (emp[key] !== undefined && emp[key] !== null && emp[key] !== "") {
+            return emp[key];
+        }
+    }
+    return "";
+}
+
+function filterCustomDropdown(systemNum) {
+    var prefix = systemNum === 1 ? 's1_' : 's2_';
+    var rawInput = document.getElementById(prefix + 'empName').value;
+    var dropdown = document.getElementById(prefix + 'dropdown');
+    
+    if (globalEmployeesData.length === 0 || rawInput.trim() === "") {
+        dropdown.classList.add('hidden-dropdown');
+        return;
+    }
+
+    var normInput = normalizeArabic(rawInput);
+    var queryWords = normInput.split(/\s+/).filter(function(w) { return w.length > 0; });
+    
+    if (queryWords.length === 0) {
+        dropdown.classList.add('hidden-dropdown');
+        return;
+    }
+
+    dropdown.innerHTML = "";
+    var matches = 0;
+
+    for (var i = 0; i < globalEmployeesData.length; i++) {
+        var emp = globalEmployeesData[i];
+        var rawName = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']);
+        var rawPayId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']);
+        
+        var normName = normalizeArabic(rawName);
+        var normPayId = normalizeArabic(rawPayId);
+        
+        var isPayIdMatch = normPayId.includes(normalizeArabic(rawInput));
+
+        var allWordsFound = true;
+        for (var w = 0; w < queryWords.length; w++) {
+            var word = queryWords[w];
+            if (!normName.includes(word)) {
+                var compactWord = word.replace(/\s+/g, '');
+                var compactName = normName.replace(/\s+/g, '');
+                if (!compactName.includes(compactWord)) {
+                    allWordsFound = false;
+                    break;
+                }
+            }
+        }
+
+        if (isPayIdMatch || allWordsFound) {
+            if (rawName !== "") {
+                var div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.innerText = rawName + (rawPayId ? " (رقم الصرف: " + rawPayId + ")" : "");
+                
+                div.onclick = (function(empObj, sys) {
+                    return function() {
+                        fillEmployeeData(empObj, sys);
+                        closeAllDropdowns();
+                    };
+                })(emp, systemNum);
+
+                dropdown.appendChild(div);
+                matches++;
+                if (matches >= 40) break;
+            }
+        }
+    }
+
+    if (matches > 0) dropdown.classList.remove('hidden-dropdown');
+    else dropdown.classList.add('hidden-dropdown');
+}
+
+function filterPayIdDropdown(systemNum) {
+    var prefix = systemNum === 1 ? 's1_' : 's2_';
+    var rawInput = document.getElementById(prefix + 'payId').value;
+    var inputVal = normalizeArabic(rawInput);
+    var dropdown = document.getElementById(prefix + 'payId_dropdown');
+    
+    if (globalEmployeesData.length === 0 || rawInput.trim() === "") {
+        dropdown.classList.add('hidden-dropdown');
+        return;
+    }
+
+    dropdown.innerHTML = "";
+    var matches = 0;
+
+    for (var i = 0; i < globalEmployeesData.length; i++) {
+        var emp = globalEmployeesData[i];
+        var rawName = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']);
+        var rawPayId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']);
+        
+        if (normalizeArabic(rawPayId).includes(inputVal)) {
+            if (rawPayId !== "") {
+                var div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.innerText = "رقم الصرف: " + rawPayId + (rawName ? " (" + rawName + ")" : "");
+                
+                div.onclick = (function(empObj, sys) {
+                    return function() {
+                        fillEmployeeData(empObj, sys);
+                        closeAllDropdowns();
+                    };
+                })(emp, systemNum);
+
+                dropdown.appendChild(div);
+                matches++;
+                if (matches >= 40) break;
+            }
+        }
+    }
+
+    if (matches > 0) dropdown.classList.remove('hidden-dropdown');
+    else dropdown.classList.add('hidden-dropdown');
+}
+
+function filterNatIdDropdown(systemNum) {
+    var prefix = systemNum === 1 ? 's1_' : 's2_';
+    var rawInput = document.getElementById(prefix + 'natId').value;
+    var inputVal = normalizeArabic(rawInput);
+    var dropdown = document.getElementById(prefix + 'natId_dropdown');
+    
+    if (globalEmployeesData.length === 0 || rawInput.trim() === "") {
+        dropdown.classList.add('hidden-dropdown');
+        return;
+    }
+
+    dropdown.innerHTML = "";
+    var matches = 0;
+
+    for (var i = 0; i < globalEmployeesData.length; i++) {
+        var emp = globalEmployeesData[i];
+        var rawName = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']);
+        var rawNatId = getVal(emp, ['الرقم القومي', 'الرقم_القومي', 'NatID', 'الرقم القومى']);
+        
+        if (normalizeArabic(rawNatId).includes(inputVal)) {
+            if (rawNatId !== "") {
+                var div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.innerText = "الرقم القومي: " + rawNatId + (rawName ? " (" + rawName + ")" : "");
+                
+                div.onclick = (function(empObj, sys) {
+                    return function() {
+                        fillEmployeeData(empObj, sys);
+                        closeAllDropdowns();
+                    };
+                })(emp, systemNum);
+
+                dropdown.appendChild(div);
+                matches++;
+                if (matches >= 40) break;
+            }
+        }
+    }
+
+    if (matches > 0) dropdown.classList.remove('hidden-dropdown');
+    else dropdown.classList.add('hidden-dropdown');
+}
+
+function filterPhoneDropdown(systemNum) {
+    var prefix = systemNum === 1 ? 's1_' : 's2_';
+    var rawInput = document.getElementById(prefix + 'phone').value;
+    var inputVal = cleanPhone(rawInput);
+    var dropdown = document.getElementById(prefix + 'phone_dropdown');
+    
+    if (globalEmployeesData.length === 0 || rawInput.trim() === "") {
+        dropdown.classList.add('hidden-dropdown');
+        return;
+    }
+
+    dropdown.innerHTML = "";
+    var matches = 0;
+
+    for (var i = 0; i < globalEmployeesData.length; i++) {
+        var emp = globalEmployeesData[i];
+        var rawName = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']);
+        var rawPhone = getVal(emp, ['رقم التليفون', 'رقم الهاتف', 'الهاتف', 'التليفون', 'Phone', 'Mobile']);
+        var empCleanPhone = cleanPhone(rawPhone);
+        
+        if (empCleanPhone.includes(inputVal)) {
+            if (rawPhone !== "") {
+                var div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.innerText = "التليفون: " + empCleanPhone + (rawName ? " (" + rawName + ")" : "");
+                
+                div.onclick = (function(empObj, sys) {
+                    return function() {
+                        fillEmployeeData(empObj, sys);
+                        closeAllDropdowns();
+                    };
+                })(emp, systemNum);
+
+                dropdown.appendChild(div);
+                matches++;
+                if (matches >= 40) break;
+            }
+        }
+    }
+
+    if (matches > 0) dropdown.classList.remove('hidden-dropdown');
+    else dropdown.classList.add('hidden-dropdown');
+}
+
+function closeAllDropdowns() {
+    var dropdowns = document.querySelectorAll('.custom-dropdown');
+    dropdowns.forEach(function(d) { d.classList.add('hidden-dropdown'); });
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.input-group')) {
+        closeAllDropdowns();
+    }
+});
+
+function fillEmployeeData(matchedEmp, systemNum) {
+    var nameVal = getVal(matchedEmp, ['اسم الموظف', 'الاسم', 'Name']);
+    var pId = getVal(matchedEmp, ['رقم الصرف', 'رقم_الصرف', 'PayID']);
+    var nId = getVal(matchedEmp, ['الرقم القومي', 'الرقم_القومي', 'NatID', 'الرقم القومى']);
+    var rawPhone = getVal(matchedEmp, ['رقم التليفون', 'رقم الهاتف', 'الهاتف', 'التليفون', 'Phone', 'Mobile']);
+    var phoneVal = cleanPhone(rawPhone);
+    
+    var taxTrVal = getVal(matchedEmp, ['المعاملة الضريبية', 'معاملة ضريبية', 'الحالة الضريبية', 'TaxTreatment', 'الاعاقة', 'الإعاقة', 'ذوي الاعاقة', 'ذوي الإعاقة', 'الحالة']);
+    var normTr = normalizeArabic(taxTrVal);
+    var isDisability = normTr.includes('ذوي إعاقة') || normTr.includes('ذوي') || normTr.includes('ذوى إعاقة') || normTr.includes('زوي اعاقه') || normTr.includes('ذوي اعاقه');
+
+    var grossVal = getVal(matchedEmp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross']);
+    var allowVal = parseFloat(getVal(matchedEmp, ['العلاوة المنضمة', 'علاوة', 'Allowance'])) || 0;
+    var insVal = getVal(matchedEmp, ['التأمينات الاجتماعية', 'التأمينات', 'Insurance']);
+    var loanVal = getVal(matchedEmp, ['قسط مدة سابقة', 'قسط', 'Loan']);
+    var fundVal = getVal(matchedEmp, ['الصناديق الخاصة', 'الصناديق', 'Funds']);
+    var profitVal = getVal(matchedEmp, ['الأرباح', 'أرباح', 'Profits']);
+    var pBase = getVal(matchedEmp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase']);
+    var pDays = getVal(matchedEmp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'PrevDays']);
+    var pTax = getVal(matchedEmp, ['ضريبة الوعاء السابق', 'ضريبة سابقة', 'PrevTax']);
+
+    var prefix = systemNum === 1 ? 's1_' : 's2_';
+
+    document.getElementById(prefix + 'empName').value = nameVal;
+    document.getElementById(prefix + 'payId').value = pId;
+    document.getElementById(prefix + 'natId').value = nId;
+    document.getElementById(prefix + 'phone').value = phoneVal;
+
+    if (isDisability) {
+        document.getElementById(prefix + 'opt_disability').checked = true;
+        document.getElementById(prefix + 'opt_none').checked = false;
+    } else {
+        document.getElementById(prefix + 'opt_none').checked = true;
+        document.getElementById(prefix + 'opt_disability').checked = false;
+    }
+
+    if (systemNum === 1) {
+        toggleDisabilityField();
+        document.getElementById('grossSalary').value = grossVal;
+        document.getElementById('allowance').value = allowVal;
+        document.getElementById('insurance').value = insVal;
+        document.getElementById('prevLoan').value = loanVal;
+        document.getElementById('funds').value = fundVal;
+        document.getElementById('otherExemption').value = profitVal;
+    } else {
+        currentRawAllowance = allowVal;
+        s2_employeeSelected = true;
+        
+        document.getElementById('s2_gross').value = grossVal;
+        document.getElementById('s2_insurance').value = insVal;
+        document.getElementById('s2_prevLoan').value = loanVal;
+        document.getElementById('s2_funds').value = fundVal;
+        document.getElementById('s2_profits').value = profitVal;
+        document.getElementById('s2_prevBase').value = pBase;
+        document.getElementById('s2_prevWorkDays').value = pDays;
+        document.getElementById('s2_prevTax').value = pTax;
+        
+        updatePersonalEx();
+    }
+}
+
+function switchSystem(sysNum) {
+    document.getElementById('system1').classList.add('hidden');
+    document.getElementById('system2').classList.add('hidden');
+    document.getElementById('tab1Btn').classList.remove('active');
+    document.getElementById('tab2Btn').classList.remove('active');
+
+    if(sysNum === 1) {
+        document.getElementById('system1').classList.remove('hidden');
+        document.getElementById('tab1Btn').classList.add('active');
+    } else {
+        document.getElementById('system2').classList.remove('hidden');
+        document.getElementById('tab2Btn').classList.add('active');
+    }
+}
+
+function toggleDisabilityField() {
+    var isDisabilityChecked = document.getElementById('s1_opt_disability').checked;
+    var group = document.getElementById('s1_disabilityGroup');
+    var disExInput = document.getElementById('s1_disabilityEx');
+    
+    if (isDisabilityChecked) {
+        group.style.display = 'block';
+        if(parseFloat(disExInput.value) <= 0) disExInput.value = "833.33";
+    } else {
+        group.style.display = 'none';
+        disExInput.value = "0";
+    }
+}
+
+function updatePersonalEx() {
+    if (!s2_employeeSelected) return;
+
+    var daysField = document.getElementById('s2_days').value;
+    var workDays = (daysField === "") ? 0 : parseFloat(daysField);
+    
+    var calculatedEx = (1666.67 / 30) * workDays;
+    document.getElementById('s2_personalEx').value = calculatedEx.toFixed(2);
+    
+    var calculatedAllowance = (currentRawAllowance / 30) * workDays;
+    document.getElementById('s2_allowance').value = calculatedAllowance.toFixed(2);
+
+    var isDisabilityChecked = document.getElementById('s2_opt_disability').checked;
+    var disGroup = document.getElementById('disabilityGroup');
+    
+    if (isDisabilityChecked) {
+        disGroup.style.display = 'block';
+        var calculatedDisability = calculatedEx * 0.5;
+        if (calculatedDisability > 833.33) {
+            calculatedDisability = 833.33;
+        }
+        document.getElementById('s2_disabilityEx').value = calculatedDisability.toFixed(2);
+    } else {
+        disGroup.style.display = 'none';
+        document.getElementById('s2_disabilityEx').value = "0";
+    }
+}
+
+function updateDisabilityEx() {
+    var isDisabilityChecked = document.getElementById('s2_opt_disability').checked;
+    if (isDisabilityChecked) {
+        var personalExInput = parseFloat(document.getElementById('s2_personalEx').value) || 0;
+        var calculatedDisability = personalExInput * 0.5;
+        if (calculatedDisability > 833.33) {
+            calculatedDisability = 833.33;
+        }
+        document.getElementById('s2_disabilityEx').value = calculatedDisability.toFixed(2);
+    } else {
+        document.getElementById('s2_disabilityEx').value = "0";
+    }
+}
+
+function resetSystem(sysNum) {
+    if (sysNum === 1) {
+        document.getElementById('s1_empName').value = "";
+        document.getElementById('s1_payId').value = "";
+        document.getElementById('s1_natId').value = "";
+        document.getElementById('s1_phone').value = "";
+        document.getElementById('grossSalary').value = "";
+        document.getElementById('s1_opt_none').checked = true;
+        document.getElementById('s1_disabilityEx').value = "0";
+        document.getElementById('allowance').value = "";
+        document.getElementById('insurance').value = "";
+        document.getElementById('prevLoan').value = "";
+        document.getElementById('funds').value = "";
+        document.getElementById('otherExemption').value = "";
+        document.getElementById('otherDeductions').value = "";
+        document.getElementById('resultsBox').style.display = 'none';
+        toggleDisabilityField();
+    } else {
+        currentRawAllowance = 0;
+        s2_employeeSelected = false;
+        
+        document.getElementById('s2_empName').value = "";
+        document.getElementById('s2_payId').value = "";
+        document.getElementById('s2_natId').value = "";
+        document.getElementById('s2_phone').value = "";
+        document.getElementById('s2_prevBase').value = "";
+        document.getElementById('s2_prevWorkDays').value = "";
+        document.getElementById('s2_prevTax').value = "";
+        document.getElementById('s2_gross').value = "";
+        document.getElementById('s2_days').value = "30";
+        document.getElementById('s2_opt_none').checked = true;
+        document.getElementById('s2_personalEx').value = "";
+        document.getElementById('s2_disabilityEx').value = "0";
+        document.getElementById('s2_allowance').value = "";
+        document.getElementById('s2_insurance').value = "";
+        document.getElementById('s2_prevLoan').value = "";
+        document.getElementById('s2_funds').value = "";
+        document.getElementById('s2_profits').value = "";
+        document.getElementById('s2_resultsBox').style.display = 'none';
+    }
+    closeAllDropdowns();
+}
+
+window.onload = function() {
+    toggleDisabilityField();
+};
+
+function calculateTax() {
+    var gross = parseFloat(document.getElementById('grossSalary').value) || 0;
+    var allowance = parseFloat(document.getElementById('allowance').value) || 0;
+    var insurance = parseFloat(document.getElementById('insurance').value) || 0;
+    var prevLoan = parseFloat(document.getElementById('prevLoan').value) || 0;
+    var funds = parseFloat(document.getElementById('funds').value) || 0;
+    var personalExemption = 5000;
+    
+    var isDisabilityChecked = document.getElementById('s1_opt_disability').checked;
+    var disabilityEx = 0;
+    if (isDisabilityChecked) {
+        disabilityEx = parseFloat(document.getElementById('s1_disabilityEx').value) || 0;
+        if (disabilityEx < 0) disabilityEx = 0;
+    }
+
+    var otherExemption = parseFloat(document.getElementById('otherExemption').value) || 0;
+    var otherDeductions = parseFloat(document.getElementById('otherDeductions').value) || 0;
+
+    var totalEarnings = gross; 
+    var totalExemptions = allowance + insurance + prevLoan + funds + personalExemption + disabilityEx + otherExemption;
+
+    var remaining = Math.max(0, totalEarnings - totalExemptions);
+    var totalTax = 0;
+    var html = "";
+
+    if (remaining <= 0) {
+        html = "<div class='breakdown-item'><span>لا يوجد مبلغ خاضع للضريبة.</span><span>0.00 ج.م</span></div>";
+    } else {
+        var rem = remaining;
+        
+        if (rem > 0) {
+            var b1 = Math.min(rem, 1250);
+            var t1 = b1 * 0.10;
+            totalTax += t1;
+            html += "<div class='breakdown-item'><span>الشريحة الأولى (10%)</span><span>" + t1.toFixed(2) + " ج.م</span></div>";
+            rem -= b1;
+        }
+        if (rem > 0) {
+            var b2 = Math.min(rem, 1250);
+            var t2 = b2 * 0.15;
+            totalTax += t2;
+            html += "<div class='breakdown-item'><span>الشريحة الثانية (15%)</span><span>" + t2.toFixed(2) + " ج.م</span></div>";
+            rem -= b2;
+        }
+        if (rem > 0) {
+            var b3 = Math.min(rem, 10833.33);
+            var t3 = b3 * 0.20;
+            totalTax += t3;
+            html += "<div class='breakdown-item'><span>الشريحة الثالثة (20%)</span><span>" + t3.toFixed(2) + " ج.م</span></div>";
+            rem -= b3;
+        }
+        if (rem > 0) {
+            var b4 = Math.min(rem, 16666.67);
+            var t4 = b4 * 0.225;
+            totalTax += t4;
+            html += "<div class='breakdown-item'><span>الشريحة الرابعة (22.5%)</span><span>" + t4.toFixed(2) + " ج.م</span></div>";
+            rem -= b4;
+        }
+        if (rem > 0) {
+            var t5 = rem * 0.25;
+            totalTax += t5;
+            html += "<div class='breakdown-item'><span>الشريحة الخامسة (25%)</span><span>" + t5.toFixed(2) + " ج.م</span></div>";
+        }
+    }
+
+    var net = totalEarnings - totalTax - insurance - prevLoan - otherDeductions;
+
+    document.getElementById('resGross').innerText = totalEarnings.toFixed(2) + " ج.م";
+    document.getElementById('resTotalExemptions').innerText = totalExemptions.toFixed(2) + " ج.م";
+    document.getElementById('resMonthlyTaxable').innerText = Math.max(0, totalEarnings - totalExemptions).toFixed(2) + " ج.م";
+    document.getElementById('bracketsBreakdown').innerHTML = html;
+    document.getElementById('monthlyTax').innerText = totalTax.toFixed(2) + " ج.م";
+    document.getElementById('resOtherDeductions').innerText = otherDeductions.toFixed(2) + " ج.م";
+    document.getElementById('netSalary').innerText = net.toFixed(2) + " ج.م";
+
+    var resultsBox = document.getElementById('resultsBox');
+    resultsBox.style.display = 'block';
+    
+    setTimeout(function() {
+        var targetBox = document.getElementById('netSalaryBox');
+        targetBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 50);
+}
+
+function generateETABreakdownHTML(baseAmount, isSubItem) {
+    var itemClass = isSubItem ? "sub-breakdown-item" : "breakdown-item";
+    var annualTax = 0;
+    var html = "";
+
+    if (baseAmount <= 0) {
+        return {
+            tax: 0,
+            html: "<div class='" + itemClass + "'><span>لا يوجد وعاء خاضع للضريبة.</span><span>0.00 ج.م</span></div>"
+        };
+    }
+
+    if (baseAmount <= 600000) {
+        var rem = baseAmount;
+        var b0 = Math.min(rem, 40000);
+        html += "<div class='" + itemClass + "'><span>الشريحة الأولى (" + b0.toFixed(2) + " × 0% معفاة)</span><span>0.00 ج.م</span></div>";
+        rem -= b0;
+
+        if (rem > 0) {
+            var b1 = Math.min(rem, 15000);
+            var t1 = b1 * 0.10; annualTax += t1;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثانية (" + b1.toFixed(2) + " × 10%)</span><span>" + t1.toFixed(2) + " ج.م</span></div>";
+            rem -= b1;
+        }
+        if (rem > 0) {
+            var b2 = Math.min(rem, 15000);
+            var t2 = b2 * 0.15; annualTax += t2;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثالثة (" + b2.toFixed(2) + " × 15%)</span><span>" + t2.toFixed(2) + " ج.م</span></div>";
+            rem -= b2;
+        }
+        if (rem > 0) {
+            var b3 = Math.min(rem, 130000);
+            var t3 = b3 * 0.20; annualTax += t3;
+            html += "<div class='" + itemClass + "'><span>الشريحة الرابعة (" + b3.toFixed(2) + " × 20%)</span><span>" + t3.toFixed(2) + " ج.م</span></div>";
+            rem -= b3;
+        }
+        if (rem > 0) {
+            var b4 = Math.min(rem, 200000);
+            var t4 = b4 * 0.225; annualTax += t4;
+            html += "<div class='" + itemClass + "'><span>الشريحة الخامسة (" + b4.toFixed(2) + " × 22.5%)</span><span>" + t4.toFixed(2) + " ج.م</span></div>";
+            rem -= b4;
+        }
+        if (rem > 0) {
+            var t5 = rem * 0.25; annualTax += t5;
+            html += "<div class='" + itemClass + "'><span>الشريحة السادسة (" + rem.toFixed(2) + " × 25%)</span><span>" + t5.toFixed(2) + " ج.م</span></div>";
+        }
+    } else if (baseAmount > 600000 && baseAmount <= 700000) {
+        var rem = baseAmount;
+        var b1 = Math.min(rem, 55000);
+        var t1 = b1 * 0.10; annualTax += t1;
+        html += "<div class='" + itemClass + "'><span>الشريحة الأولى (" + b1.toFixed(2) + " × 10%)</span><span>" + t1.toFixed(2) + " ج.م</span></div>";
+        rem -= b1;
+
+        if (rem > 0) {
+            var b2 = Math.min(rem, 15000);
+            var t2 = b2 * 0.15; annualTax += t2;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثانية (" + b2.toFixed(2) + " × 15%)</span><span>" + t2.toFixed(2) + " ج.م</span></div>";
+            rem -= b2;
+        }
+        if (rem > 0) {
+            var b3 = Math.min(rem, 130000);
+            var t3 = b3 * 0.20; annualTax += t3;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثالثة (" + b3.toFixed(2) + " × 20%)</span><span>" + t3.toFixed(2) + " ج.م</span></div>";
+            rem -= b3;
+        }
+        if (rem > 0) {
+            var b4 = Math.min(rem, 200000);
+            var t4 = b4 * 0.225; annualTax += t4;
+            html += "<div class='" + itemClass + "'><span>الشريحة الرابعة (" + b4.toFixed(2) + " × 22.5%)</span><span>" + t4.toFixed(2) + " ج.م</span></div>";
+            rem -= b4;
+        }
+        if (rem > 0) {
+            var t5 = rem * 0.25; annualTax += t5;
+            html += "<div class='" + itemClass + "'><span>الشريحة الخامسة (" + rem.toFixed(2) + " × 25%)</span><span>" + t5.toFixed(2) + " ج.م</span></div>";
+        }
+    } else if (baseAmount > 700000 && baseAmount <= 800000) {
+        var rem = baseAmount;
+        var b2 = Math.min(rem, 70000);
+        var t2 = b2 * 0.15; annualTax += t2;
+        html += "<div class='" + itemClass + "'><span>الشريحة الأولى (" + b2.toFixed(2) + " × 15%)</span><span>" + t2.toFixed(2) + " ج.م</span></div>";
+        rem -= b2;
+
+        if (rem > 0) {
+            var b3 = Math.min(rem, 130000);
+            var t3 = b3 * 0.20; annualTax += t3;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثانية (" + b3.toFixed(2) + " × 20%)</span><span>" + t3.toFixed(2) + " ج.م</span></div>";
+            rem -= b3;
+        }
+        if (rem > 0) {
+            var b4 = Math.min(rem, 200000);
+            var t4 = b4 * 0.225; annualTax += t4;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثالثة (" + b4.toFixed(2) + " × 22.5%)</span><span>" + t4.toFixed(2) + " ج.م</span></div>";
+            rem -= b4;
+        }
+        if (rem > 0) {
+            var t5 = rem * 0.25; annualTax += t5;
+            html += "<div class='" + itemClass + "'><span>الشريحة الرابعة (" + rem.toFixed(2) + " × 25%)</span><span>" + t5.toFixed(2) + " ج.م</span></div>";
+        }
+    } else if (baseAmount > 800000 && baseAmount <= 900000) {
+        var rem = baseAmount;
+        var b3 = Math.min(rem, 200000);
+        var t3 = b3 * 0.20; annualTax += t3;
+        html += "<div class='" + itemClass + "'><span>الشريحة الأولى (" + b3.toFixed(2) + " × 20%)</span><span>" + t3.toFixed(2) + " ج.م</span></div>";
+        rem -= b3;
+
+        if (rem > 0) {
+            var b4 = Math.min(rem, 200000);
+            var t4 = b4 * 0.225; annualTax += t4;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثانية (" + b4.toFixed(2) + " × 22.5%)</span><span>" + t4.toFixed(2) + " ج.م</span></div>";
+            rem -= b4;
+        }
+        if (rem > 0) {
+            var t5 = rem * 0.25; annualTax += t5;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثالثة (" + rem.toFixed(2) + " × 25%)</span><span>" + t5.toFixed(2) + " ج.م</span></div>";
+        }
+    } else if (baseAmount > 900000 && baseAmount <= 1200000) {
+        var rem = baseAmount;
+        var b4 = Math.min(rem, 400000);
+        var t4 = b4 * 0.225; annualTax += t4;
+        html += "<div class='" + itemClass + "'><span>الشريحة الأولى (" + b4.toFixed(2) + " × 22.5%)</span><span>" + t4.toFixed(2) + " ج.م</span></div>";
+        rem -= b4;
+
+        if (rem > 0) {
+            var b5 = Math.min(rem, 800000);
+            var t5 = b5 * 0.25; annualTax += t5;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثانية (" + b5.toFixed(2) + " × 25%)</span><span>" + t5.toFixed(2) + " ج.م</span></div>";
+            rem -= b5;
+        }
+        if (rem > 0) {
+            var t6 = rem * 0.275; annualTax += t6;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثالثة (" + rem.toFixed(2) + " × 27.5%)</span><span>" + t6.toFixed(2) + " ج.م</span></div>";
+        }
+    } else {
+        var rem = baseAmount;
+        var b5 = Math.min(rem, 1200000);
+        var t5 = b5 * 0.25; annualTax += t5;
+        html += "<div class='" + itemClass + "'><span>الشريحة الأولى (" + b5.toFixed(2) + " × 25%)</span><span>" + t5.toFixed(2) + " ج.م</span></div>";
+        rem -= b5;
+
+        if (rem > 0) {
+            var t6 = rem * 0.275; annualTax += t6;
+            html += "<div class='" + itemClass + "'><span>الشريحة الثانية الكبرى (" + rem.toFixed(2) + " × 27.5%)</span><span>" + t6.toFixed(2) + " ج.م</span></div>";
+        }
+    }
+
+    return { tax: annualTax, html: html };
+}
+
+function calcETATaxFromTable(rawAnnualIncome) {
+    var inc = Math.floor(rawAnnualIncome / 10) * 10;
+    return generateETABreakdownHTML(inc, false).tax;
+}
+
+function openExplanationModal(type) {
+    if (type === 'bracket') {
+        showModal("شرح اختيار الفئة الضريبية والوعاء الإجمالي", modalExplanations.bracket);
+    } else if (type === 'formula') {
+        showModal("شرح معادلة التعلية الجبرية وأصل الثابت الضريبي", modalExplanations.formula);
+    }
+}
+
+function showModal(title, htmlContent) {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalBody').innerHTML = htmlContent;
+    document.getElementById('infoModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('infoModal').classList.add('hidden');
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('infoModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+};
+
+function calculateTaxETA() {
+    var prevBase = parseFloat(document.getElementById('s2_prevBase').value) || 0;
+    var prevWorkDays = parseFloat(document.getElementById('s2_prevWorkDays').value) || 0;
+    var prevTax = parseFloat(document.getElementById('s2_prevTax').value) || 0;
+
+    var gross = parseFloat(document.getElementById('s2_gross').value) || 0;
+    
+    var daysField = document.getElementById('s2_days').value;
+    var workDays = (daysField === "") ? 0 : parseFloat(daysField);
+
+    var allowance = parseFloat(document.getElementById('s2_allowance').value) || 0;
+    var insurance = parseFloat(document.getElementById('s2_insurance').value) || 0;
+    
+    var personalExInput = document.getElementById('s2_personalEx').value;
+    var personalEx = (personalExInput === "" || isNaN(parseFloat(personalExInput))) ? 0 : parseFloat(personalExInput);
+    if (personalEx < 0) personalEx = 0;
+
+    var isDisabilityChecked = document.getElementById('s2_opt_disability').checked;
+    var disabilityEx = 0;
+    if (isDisabilityChecked) {
+        var disabilityExInput = document.getElementById('s2_disabilityEx').value;
+        disabilityEx = (disabilityExInput === "" || isNaN(parseFloat(disabilityExInput))) ? 0 : parseFloat(disabilityExInput);
+        if (disabilityEx < 0) disabilityEx = 0;
+        if (disabilityEx > 833.33) disabilityEx = 833.33;
+    }
+    
+    var prevLoan = parseFloat(document.getElementById('s2_prevLoan').value) || 0;
+    var enteredFunds = parseFloat(document.getElementById('s2_funds').value) || 0;
+    var profits = parseFloat(document.getElementById('s2_profits').value) || 0;
+
+    var otherExemptionsBeforeFunds = allowance + insurance + personalEx + disabilityEx + prevLoan + profits;
+    var netBeforeFunds = gross - otherExemptionsBeforeFunds;
+    if (netBeforeFunds < 0) netBeforeFunds = 0;
+
+    var calculatedFundsLimit = netBeforeFunds * 0.15;
+    var funds = Math.min(enteredFunds, calculatedFundsLimit);
+
+    var totalExemptionsPeriod = otherExemptionsBeforeFunds + funds;
+    var periodNet = gross - totalExemptionsPeriod;
+    if(periodNet < 0) periodNet = 0;
+
+    var prevPeriodNet = (prevBase / 360) * prevWorkDays;
+
+    var combinedNetIncome = periodNet + prevPeriodNet;
+    var combinedDays = workDays + prevWorkDays;
+
+    var annualBase = (combinedNetIncome * 360) / (combinedDays > 0 ? combinedDays : 1);
+    if (annualBase < 0) annualBase = 0;
+
+    var mainBreakdown = generateETABreakdownHTML(annualBase, false);
+    var annualTax = mainBreakdown.tax;
+    var html = mainBreakdown.html;
+
+    var combinedPeriodTax = (annualTax * combinedDays) / 360;
+    var periodTax = combinedPeriodTax - prevTax;
+    if (periodTax < 0) periodTax = 0;
+
+    var totalAddition = 0;
+    var totalWithAddition = gross;
+    var additionHtml = "";
+
+    var effectiveDays = (prevWorkDays > 0) ? combinedDays : (workDays > 0 ? workDays : 360);
+    var k = effectiveDays / 360;
+    var effectiveB0 = (prevWorkDays > 0) ? ((prevPeriodNet * 360) / effectiveDays) : prevBase;
+    var effectiveT0 = (prevTax > 0) ? prevTax : ((effectiveB0 > 0) ? parseFloat((calcETATaxFromTable(effectiveB0) * k).toFixed(2)) : 0);
+
+    if (periodNet > 0 && k > 0) {
+        var annualizedNetBonus = periodNet / k;
+        var annualizedPrevTax = effectiveT0 / k;
+        var rhsTarget = effectiveB0 + annualizedNetBonus - annualizedPrevTax;
+
+        var taxConstant = 0;
+        var marginalComplement = 1;
+        var marginalRatePercent = "0%";
+        var bracketLabel = "";
+        var grossRangeText = "";
+        var netRangeText = "";
+        var constantDerivationHtml = "";
+
+        if (rhsTarget > 900000) {
+            taxConstant = 30000;
+            marginalComplement = 0.725;
+            marginalRatePercent = "27.5%";
+            bracketLabel = "أكثر من 1,200,000 ج (سعر 27.5% | الثابت 30,000)";
+            grossRangeText = "أكثر من 1,200,000 ج.م سنوياً";
+            netRangeText = "أكثر من 900,000 ج.م سنوياً (بعد خصم الضريبة)";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (30,000 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>في هذه الشريحة العليا (أكثر من 1,200,000 ج.م)، أول <strong>1,200,000 ج.م</strong> تُحسب بسعر <strong>25%</strong> (وضريبتها = 1,200,000 × 25% = <strong>300,000 ج.م</strong>)، وما زاد عنها يُحسب بسعر <strong>27.5%</strong>.</p>" +
+                "<div class='modal-formula-box'>الوفر الضريبي لأول 1,200,000 ج.م = 1,200,000 × (27.5% - 25%) = 1,200,000 × 2.5% = 30,000 ج.م</div>" +
+                "<p>وبطريقة المعادلة الجبرية: الضريبة = 300,000 + (الوعاء الإجمالي - 1,200,000) × 0.275 = (0.275 × الوعاء الإجمالي) - <strong>30,000</strong>.</p>";
+        } else if (rhsTarget > 685000) {
+            taxConstant = 10000;
+            marginalComplement = 0.75;
+            marginalRatePercent = "25%";
+            bracketLabel = "من 900,000 إلى 1,200,000 ج (سعر 25% | الثابت 10,000)";
+            grossRangeText = "من 900,001 إلى 1,200,000 ج.م سنوياً";
+            netRangeText = "من 685,000.75 إلى 900,000 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (10,000 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>في هذه الفئة يُلغى الإعفاء والشرائح الثلاث الأولى، فتُحسب أول <strong>400,000 ج.م</strong> بسعر <strong>22.5%</strong> (وضريبتها = 90,000 ج.م)، وما زاد عنها حتى 1,200,000 ج.م بسعر <strong>25%</strong>.</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = 400,000 × (25% - 22.5%) = 400,000 × 2.5% = 10,000 ج.م</div>";
+        } else if (rhsTarget > 615000) {
+            taxConstant = 15000;
+            marginalComplement = 0.75;
+            marginalRatePercent = "25%";
+            bracketLabel = "من 800,000 إلى 900,000 ج (سعر 25% | الثابت 15,000)";
+            grossRangeText = "من 800,001 إلى 900,000 ج.م سنوياً";
+            netRangeText = "من 615,000.75 إلى 685,000 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (15,000 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>تُحسب أول 200,000 ج.م بسعر 20% (40,000 ج)، والـ 200,000 ج.م التالية بسعر 22.5% (45,000 ج)، والباقي بسعر 25%.</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = (200,000 × 5%) + (200,000 × 2.5%) = 10,000 + 5,000 = 15,000 ج.م</div>";
+        } else if (rhsTarget > 543500) {
+            taxConstant = 18500;
+            marginalComplement = 0.75;
+            marginalRatePercent = "25%";
+            bracketLabel = "من 700,000 إلى 800,000 ج (سعر 25% | الثابت 18,500)";
+            grossRangeText = "من 700,001 إلى 800,000 ج.م سنوياً";
+            netRangeText = "من 543,500.75 إلى 615,000 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (18,500 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>أول 70,000 ج بسعر 15%، ثم 130,000 ج بسعر 20%، ثم 200,000 ج بسعر 22.5%، والباقي بسعر 25%.</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = (70,000 × 10%) + (130,000 × 5%) + (200,000 × 2.5%) = 7,000 + 6,500 + 5,000 = 18,500 ج.م</div>";
+        } else if (rhsTarget > 471250) {
+            taxConstant = 21250;
+            marginalComplement = 0.75;
+            marginalRatePercent = "25%";
+            bracketLabel = "من 600,000 إلى 700,000 ج (سعر 25% | الثابت 21,250)";
+            grossRangeText = "من 600,001 إلى 700,000 ج.م سنوياً";
+            netRangeText = "من 471,250.75 إلى 543,500 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (21,250 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>يُلغى إعفاء الـ 40,000 ج فقط، فتُحسب أول 55,000 ج بسعر 10%، ثم 15,000 ج بسعر 15%، ثم 130,000 ج بسعر 20%، ثم 200,000 ج بسعر 22.5%، والباقي بسعر 25%.</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = (55,000 × 15%) + (15,000 × 10%) + (130,000 × 5%) + (200,000 × 2.5%) = 8,250 + 1,500 + 6,500 + 5,000 = 21,250 ج.م</div>";
+        } else if (rhsTarget > 325250) {
+            taxConstant = 25250;
+            marginalComplement = 0.75;
+            marginalRatePercent = "25%";
+            bracketLabel = "من 400,000 إلى 600,000 ج (سعر 25% | الثابت 25,250)";
+            grossRangeText = "من 400,001 إلى 600,000 ج.م سنوياً";
+            netRangeText = "من 325,250.75 إلى 471,250 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (25,250 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>مجموع فروق الضرائب المخفضة للشرائح الخمس السابقة مقارنة بسعر 25%:</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = (40,000×25%) + (15,000×15%) + (15,000×10%) + (130,000×5%) + (200,000×2.5%) = 10,000 + 2,250 + 1,500 + 6,500 + 5,000 = 25,250 ج.م</div>";
+        } else if (rhsTarget > 170250) {
+            taxConstant = 15250;
+            marginalComplement = 0.775;
+            marginalRatePercent = "22.5%";
+            bracketLabel = "من 200,000 إلى 400,000 ج (سعر 22.5% | الثابت 15,250)";
+            grossRangeText = "من 200,001 إلى 400,000 ج.م سنوياً";
+            netRangeText = "من 170,250.78 إلى 325,250 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (15,250 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>مجموع فروق الضرائب للشرائح الأربع السابقة مقارنة بسعر 22.5%:</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = (40,000×22.5%) + (15,000×12.5%) + (15,000×7.5%) + (130,000×2.5%) = 9,000 + 1,875 + 1,125 + 3,250 = 15,250 ج.م</div>";
+        } else if (rhsTarget > 66250) {
+            taxConstant = 10250;
+            marginalComplement = 0.80;
+            marginalRatePercent = "20%";
+            bracketLabel = "من 70,000 إلى 200,000 ج (سعر 20% | الثابت 10,250)";
+            grossRangeText = "من 70,001 إلى 200,000 ج.م سنوياً";
+            netRangeText = "من 66,250.80 إلى 170,250 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (10,250 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>مجموع فروق الضرائب للشرائح الثلاث السابقة مقارنة بسعر 20%:</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = (40,000×20%) + (15,000×10%) + (15,000×5%) = 8,000 + 1,500 + 750 = 10,250 ج.م</div>";
+        } else if (rhsTarget > 53500) {
+            taxConstant = 6750;
+            marginalComplement = 0.85;
+            marginalRatePercent = "15%";
+            bracketLabel = "من 55,000 إلى 70,000 ج (سعر 15% | الثابت 6,750)";
+            grossRangeText = "من 55,001 إلى 70,000 ج.م سنوياً";
+            netRangeText = "من 53,500.85 إلى 66,250 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (6,750 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>مجموع فروق الضرائب للشريحتين السابقتين مقارنة بسعر 15%:</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = (40,000×15%) + (15,000×5%) = 6,000 + 750 = 6,750 ج.م</div>";
+        } else if (rhsTarget > 40000) {
+            taxConstant = 4000;
+            marginalComplement = 0.90;
+            marginalRatePercent = "10%";
+            bracketLabel = "من 40,000 إلى 55,000 ج (سعر 10% | الثابت 4,000)";
+            grossRangeText = "من 40,001 إلى 55,000 ج.م سنوياً";
+            netRangeText = "من 40,000.90 إلى 53,500 ج.م سنوياً";
+            constantDerivationHtml = 
+                "<p><strong>كيف تم حساب الثابت الضريبي (4,000 ج.م) لهذا الوعاء؟</strong></p>" +
+                "<p>الشريحة الأولى (40,000 ج.م) معفاة تماماً، وما زاد عنها يخضع لسعر 10%:</p>" +
+                "<div class='modal-formula-box'>الفارق التراكمي = 40,000 × 10% = 4,000 ج.م</div>";
+        } else {
+            taxConstant = 0;
+            marginalComplement = 1.00;
+            marginalRatePercent = "0%";
+            bracketLabel = "معفى حتى 40,000 ج (سعر 0% | الثابت 0)";
+            grossRangeText = "حتى 40,000 ج.م سنوياً";
+            netRangeText = "حتى 40,000 ج.م سنوياً";
+            constantDerivationHtml = "<p>الوعاء بالكامل ضمن الشريحة المعفاة (0%)، لذلك لا توجد ضريبة ولا ثابت ضريبي (الثابت = 0).</p>";
+        }
+
+        var b1Raw = (rhsTarget - taxConstant) / marginalComplement;
+        var b1Rounded10 = Math.floor(b1Raw / 10) * 10;
+        
+        var newTaxBreakdownResult = generateETABreakdownHTML(b1Rounded10, true);
+        var newAnnualTaxGrossUp = newTaxBreakdownResult.tax;
+        var newPeriodTaxGrossUp = parseFloat((newAnnualTaxGrossUp * k).toFixed(2));
+
+        totalAddition = parseFloat(Math.max(0, newPeriodTaxGrossUp - effectiveT0).toFixed(2));
+        totalWithAddition = parseFloat((gross + totalAddition).toFixed(2));
+
+        modalExplanations.bracket = 
+            "<div class='modal-highlight-box'>" +
+            "<p><strong>الفئة الضريبية المختارة لهذا الوعاء:</strong> " + bracketLabel + "</p>" +
+            "<p><strong>الوعاء الصافي السنوي المستهدف (بعد الضريبة):</strong> " + rhsTarget.toFixed(2) + " ج.م</p>" +
+            "<p><strong>الوعاء السنوي الإجمالي (قبل خصم الضريبة):</strong> " + b1Raw.toFixed(2) + " ج.م (أي بعد إضافة ضريبة سنوية قدرها " + newAnnualTaxGrossUp.toFixed(2) + " ج.م).</p>" +
+            "</div>" +
+            "<p><strong>لماذا تم اختيار هذه الفئة تحديداً؟</strong></p>" +
+            "<p>يتم تحديد الفئة الضريبية بناءً على <strong>الوعاء الإجمالي السنوي قبل خصم الضريبة</strong> وليس الصافي فقط؛ فعندما نضيف الضريبة المستحقة (" + newAnnualTaxGrossUp.toFixed(2) + " ج.م) إلى الوعاء الصافي (" + rhsTarget.toFixed(2) + " ج.م) يصبح الإجمالي <strong>" + b1Raw.toFixed(2) + " ج.م</strong>، وهو يقع ضمن نطاق (<strong>" + grossRangeText + "</strong>)، والذي يقابله في الصافي نطاق (<strong>" + netRangeText + "</strong>).</p>" +
+            "<hr style='margin: 12px 0; border: 0; border-top: 1px dashed #cbd5e1;'>" +
+            "<p><strong>دليل مرجعي سريع لجميع الفئات (الصافي مقابل الإجمالي):</strong></p>" +
+            "<ul>" +
+            "<li><strong>حتى 40,000 ج إجمالي (صافي حتى 40,000 ج):</strong> معفى 0% | الثابت: 0</li>" +
+            "<li><strong>40,000 إلى 55,000 ج إجمالي (صافي 40,000.90 إلى 53,500 ج):</strong> سعر 10% | الثابت: 4,000</li>" +
+            "<li><strong>55,000 إلى 70,000 ج إجمالي (صافي 53,500.85 إلى 66,250 ج):</strong> سعر 15% | الثابت: 6,750</li>" +
+            "<li><strong>70,000 إلى 200,000 ج إجمالي (صافي 66,250.80 إلى 170,250 ج):</strong> سعر 20% | الثابت: 10,250</li>" +
+            "<li><strong>200,000 إلى 400,000 ج إجمالي (صافي 170,250.78 إلى 325,250 ج):</strong> سعر 22.5% | الثابت: 15,250</li>" +
+            "<li><strong>400,000 إلى 600,000 ج إجمالي (صافي 325,250.75 إلى 471,250 ج):</strong> سعر 25% | الثابت: 25,250</li>" +
+            "<li><strong>600,000 إلى 700,000 ج إجمالي (صافي 471,250.75 إلى 543,500 ج):</strong> سعر 25% | الثابت: 21,250</li>" +
+            "<li><strong>700,000 إلى 800,000 ج إجمالي (صافي 543,500.75 إلى 615,000 ج):</strong> سعر 25% | الثابت: 18,500</li>" +
+            "<li><strong>800,000 إلى 900,000 ج إجمالي (صافي 615,000.75 إلى 685,000 ج):</strong> سعر 25% | الثابت: 15,000</li>" +
+            "<li><strong>900,000 إلى 1,200,000 ج إجمالي (صافي 685,000.75 إلى 900,000 ج):</strong> سعر 25% | الثابت: 10,000</li>" +
+            "<li><strong>أكثر من 1,200,000 ج إجمالي (صافي أكثر من 900,000 ج):</strong> سعر 27.5% | الثابت: 30,000</li>" +
+            "</ul>";
+
+        modalExplanations.formula = 
+            "<p><strong>أولاً: كيف تعمل معادلة التعلية الجبرية؟</strong></p>" +
+            "<p>الهدف هو إيجاد الوعاء الإجمالي السنوي قبل خصم الضريبة بحيث إذا خصمنا منه ضريبته يتبقى لنا <strong>الوعاء الصافي السنوي المستهدف (" + rhsTarget.toFixed(2) + " ج.م)</strong>.</p>" +
+            "<div class='modal-formula-box'>الوعاء الإجمالي = (الوعاء الصافي المستهدف - الثابت الضريبي) ÷ مكمل الشريحة الحدية</div>" +
+            "<ul>" +
+            "<li><strong>مكمل الشريحة الحدية (" + marginalComplement.toFixed(3) + "):</strong> يمثل الجزء المتبقي للموظف من كل جنيه في الشريحة العليا بعد خصم الضريبة الحدية (" + marginalRatePercent + ")، أي: <code>1 - " + (1 - marginalComplement).toFixed(3) + " = " + marginalComplement.toFixed(3) + "</code>.</li>" +
+            "<li><strong>الثابت الضريبي (" + taxConstant.toLocaleString() + " ج.م):</strong> يمثل إجمالي الوفر الضريبي التراكمي للشرائح السابقة لأنها خضعت لأسعار أقل من سعر الشريحة الحدية (" + marginalRatePercent + ").</li>" +
+            "</ul>" +
+            "<hr style='margin: 12px 0; border: 0; border-top: 1px dashed #cbd5e1;'>" +
+            constantDerivationHtml +
+            "<div class='modal-highlight-box' style='margin-top: 10px;'>" +
+            "<p style='margin-bottom:0;'><strong>التطبيق بالأرقام على حالتك الحالية:</strong><br>" +
+            "(" + rhsTarget.toFixed(2) + " - " + taxConstant.toLocaleString() + ") ÷ " + marginalComplement.toFixed(3) + " = <strong>" + b1Raw.toFixed(2) + " ج.م</strong></p>" +
+            "</div>";
+
+        additionHtml += "<div class='breakdown-item'><span>1. إجمالي الوعاء السابق المجمع:</span><span>" + effectiveB0.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>2. الضريبة السابقة المنسبة ومعامل المدة (" + effectiveDays + " ÷ 360 = " + k.toFixed(4) + "):</span><span>" + effectiveT0.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>3. صافي المكافأة الحالية المنسب سنوياً (× 360 ÷ " + effectiveDays + "):</span><span>" + annualizedNetBonus.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>4. الضريبة السابقة المنسبة سنوياً (× 360 ÷ " + effectiveDays + "):</span><span>" + annualizedPrevTax.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>5. الوعاء الصافي السنوي المستهدف:</span><span>" + rhsTarget.toFixed(2) + " ج.م</span></div>";
+        
+        additionHtml += "<div class='breakdown-item'>" +
+                        "<span>6. الفئة الضريبية المطبقة <button type='button' class='info-btn' onclick='openExplanationModal(\"bracket\")'>؟</button>:</span>" +
+                        "<span>" + bracketLabel + "</span></div>";
+
+        additionHtml += "<div class='breakdown-item'>" +
+                        "<span>7. معادلة التعلية الجبرية ((الوعاء المستهدف - " + taxConstant.toLocaleString() + ") ÷ " + marginalComplement.toFixed(3) + ") <button type='button' class='info-btn' onclick='openExplanationModal(\"formula\")'>؟</button>:</span>" +
+                        "<span>" + b1Raw.toFixed(2) + " ج.م</span></div>";
+
+        additionHtml += "<div class='breakdown-item'><span>8. الوعاء السنوي النهائي مقرباً لأقرب 10 جنيهات أقل:</span><span>" + b1Rounded10.toFixed(2) + " ج.م</span></div>";
+
+        additionHtml += "<div class='sub-breakdown-container'>" +
+                        "<div class='sub-breakdown-title'>التشريح الضريبي التفصيلي للوعاء الجديد (" + b1Rounded10.toFixed(2) + " ج.م) حسب القانون:</div>" +
+                        newTaxBreakdownResult.html +
+                        "</div>";
+
+        additionHtml += "<div class='breakdown-item'><span>9. إجمالي الضريبة السنوية المجمعة على الوعاء الجديد:</span><span>" + newAnnualTaxGrossUp.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>10. ضريبة الفترة الجديدة (" + effectiveDays + " ÷ 360):</span><span>" + newPeriodTaxGrossUp.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>11. ضريبة المكافأة المستقطعة (التعلية النهائية):</span><span>" + totalAddition.toFixed(2) + " ج.م</span></div>";
+    } else {
+        additionHtml = "<div class='breakdown-item'><span>لا يوجد صافي مكافأة خاضع للتعلية.</span><span>0.00 ج.م</span></div>";
+    }
+
+    document.getElementById('s2_resGross').innerText = gross.toFixed(2) + " ج.م";
+    document.getElementById('s2_resNetBeforeFunds').innerText = netBeforeFunds.toFixed(2) + " ج.م";
+    document.getElementById('s2_resFinalFunds').innerText = funds.toFixed(2) + " ج.م";
+    document.getElementById('s2_resExemptions').innerText = totalExemptionsPeriod.toFixed(2) + " ج.م";
+    document.getElementById('s2_resPeriodNet').innerText = periodNet.toFixed(2) + " ج.م";
+    document.getElementById('s2_resPrevNet').innerText = prevPeriodNet.toFixed(2) + " ج.م";
+    document.getElementById('s2_resTotalDays').innerText = combinedDays + " يوم";
+    document.getElementById('s2_resAnnualBase').innerText = annualBase.toFixed(2) + " ج.م";
+    document.getElementById('s2_breakdown').innerHTML = html;
+    document.getElementById('s2_annualTax').innerText = annualTax.toFixed(2) + " ج.م";
+    document.getElementById('s2_combinedPeriodTax').innerText = combinedPeriodTax.toFixed(2) + " ج.م";
+    document.getElementById('s2_periodTax').innerText = periodTax.toFixed(2) + " ج.م";
+    
+    document.getElementById('s2_additionBreakdown').innerHTML = additionHtml;
+    document.getElementById('s2_additionAmount').innerText = totalAddition.toFixed(2) + " ج.م";
+    document.getElementById('s2_totalWithAddition').innerText = totalWithAddition.toFixed(2) + " ج.م";
+
+    var resultsBoxETA = document.getElementById('s2_resultsBox');
+    resultsBoxETA.style.display = 'block';
+    
+    setTimeout(function() {
+        var targetBoxETA = document.getElementById('s2_totalAdditionBox');
+        targetBoxETA.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 50);
+}
+</script>
+
+</body>
+</html>
