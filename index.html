@@ -1585,19 +1585,40 @@ function runBatchCalculation() {
     for (var i = 0; i < batchEmployeesData.length; i++) {
         var emp = batchEmployeesData[i];
         
+        // 1. بيانات الوعاء والضريبة السابقة
         var prevBase = parseFloat(getVal(emp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase'])) || 0;
         var prevWorkDays = parseFloat(getVal(emp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'مدة العمل', 'PrevWorkDays', 'أيام'])) || 0;
         var prevTax = parseFloat(getVal(emp, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
-        var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
         
-        var rawDaysVal = getVal(emp, ['مدة العمل بالفترة', 'أيام الفترة', 'Days', 'مدة العمل']);
+        // 2. الاستحقاقات ومدة العمل للفترة الحالية (مفصولة تماماً عن مدة العمل السابقة)
+        var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
+        var rawDaysVal = getVal(emp, ['مدة العمل بالفترة', 'أيام الفترة', 'Days']);
         var workDays = (rawDaysVal !== "" && !isNaN(parseFloat(rawDaysVal))) ? parseFloat(rawDaysVal) : 0;
 
+        // 3. الإعفاءات للفترة الحالية (بدون افتراض تلقائي)
         var rawPersonalEx = getVal(emp, ['الإعفاء الشخصي', 'اعفاء شخصي', 'PersonalEx']);
         var personalEx = (rawPersonalEx !== "" && !isNaN(parseFloat(rawPersonalEx))) ? parseFloat(rawPersonalEx) : 0;
+        if (personalEx < 0) personalEx = 0;
 
-        var periodNet = Math.max(0, gross - personalEx);
+        var disabilityEx = parseFloat(getVal(emp, ['إعفاء الإعاقة', 'اعفاء الاعاقة', 'DisabilityEx'])) || 0;
+        if (disabilityEx < 0) disabilityEx = 0;
+        if (disabilityEx > 833.33) disabilityEx = 833.33;
 
+        var allowance = parseFloat(getVal(emp, ['العلاوة المنضمة', 'علاوة', 'Allowance'])) || 0;
+        var insurance = parseFloat(getVal(emp, ['التأمينات الاجتماعية', 'التأمينات', 'Insurance'])) || 0;
+        var prevLoan = parseFloat(getVal(emp, ['قسط مدة سابقة', 'قسط', 'Loan'])) || 0;
+        var enteredFunds = parseFloat(getVal(emp, ['الصناديق الخاصة', 'الصناديق', 'Funds'])) || 0;
+        var profits = parseFloat(getVal(emp, ['الأرباح', 'أرباح', 'Profits'])) || 0;
+
+        var otherExemptionsBeforeFunds = allowance + insurance + personalEx + disabilityEx + prevLoan + profits;
+        var netBeforeFunds = Math.max(0, gross - otherExemptionsBeforeFunds);
+        var calculatedFundsLimit = netBeforeFunds * 0.15;
+        var funds = Math.min(enteredFunds, calculatedFundsLimit);
+
+        var totalExemptionsPeriod = otherExemptionsBeforeFunds + funds;
+        var periodNet = Math.max(0, gross - totalExemptionsPeriod);
+
+        // 4. الحساب المطابق تماماً للحسبة الفردية
         var prevPeriodNet = (prevBase / 360) * prevWorkDays;
         var combinedDays = workDays + prevWorkDays;
 
@@ -1665,7 +1686,7 @@ function runBatchCalculation() {
             else if (src === 'calc_combinedPeriodTax') valToAssign = combinedPeriodTaxVal;
             else if (src === 'calc_annualBase') valToAssign = annualBaseVal;
             else if (src === 'calc_periodNet') valToAssign = periodNet;
-            else if (src === 'calc_totalExemptions') valToAssign = personalEx;
+            else if (src === 'calc_totalExemptions') valToAssign = totalExemptionsPeriod;
             
             emp['custom_' + src] = valToAssign;
         }
