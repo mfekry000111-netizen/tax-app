@@ -377,7 +377,8 @@
         .tax-table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
         .tax-table-container table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: center; background: var(--card-bg); color: var(--text-main); }
         .tax-table-container th, .tax-table-container td { border: 1px solid var(--gray-border); padding: 8px 6px; }
-        .tax-table-container th { background: var(--blue-primary); color: #ffffff; font-weight: 700; }
+        .tax-table-container th { background: var(--blue-primary); color: #ffffff; font-weight: 700; cursor: pointer; user-select: none; }
+        .tax-table-container th:hover { filter: brightness(1.15); }
 
         .batch-actions-bar { display: flex; gap: 6px; align-items: center; }
         .icon-action-btn {
@@ -654,7 +655,7 @@
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل بالفترة (أيام):</label>
-                <input type="number" id="s2_days" value="30" placeholder="0" oninput="updatePersonalEx()">
+                <input type="number" id="s2_days" value="" placeholder="أدخل عدد أيام الفترة يدويآ" oninput="updatePersonalEx()">
             </div>
         </div>
 
@@ -997,35 +998,44 @@ function saveModalAsImage() {
     });
 }
 
+let sortDirections = {};
+
 function openBatchResultsModal() {
     if (!batchEmployeesData || batchEmployeesData.length === 0) {
         alert("لا توجد بيانات مستوردة أو محسوبة للعرض. برجاء استيراد ملف الإكسيل والضغط على زر الاحتساب (⚡) أولاً.");
         return;
     }
-    
+    renderBatchTable(batchEmployeesData);
+}
+
+function renderBatchTable(dataToRender) {
     var tableHTML = `
         <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
             <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين):</p>
+            <div class="input-group" style="margin-bottom: 12px;">
+                <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه..." oninput="filterBatchTableResults()" autocomplete="off">
+            </div>
             <div class="tax-table-container">
-                <table>
+                <table id="batchResultsTable">
                     <thead>
                         <tr>
-                            <th>رقم الصرف</th>
-                            <th>اسم الموظف</th>
-                            <th>الاستحقاقات</th>
-                            <th>الوعاء السابق</th>
-                            <th>مدة العمل السابقة</th>
-                            <th>الضريبة السابقة</th>
-                            <th>التعلية</th>
-                            <th>المكافأة شاملة التعلية</th>
-                            <th>الوعاء السنوي النهائي</th>
+                            <th onclick="sortBatchTable('payId')">رقم الصرف ↕</th>
+                            <th onclick="sortBatchTable('name')">اسم الموظف ↕</th>
+                            <th onclick="sortBatchTable('gross')">الاستحقاقات ↕</th>
+                            <th onclick="sortBatchTable('pBase')">الوعاء السابق ↕</th>
+                            <th onclick="sortBatchTable('pDays')">مدة العمل السابقة ↕</th>
+                            <th onclick="sortBatchTable('pTax')">الضريبة السابقة ↕</th>
+                            <th onclick="sortBatchTable('add')">التعلية ↕</th>
+                            <th onclick="sortBatchTable('totalWithAdd')">المكافأة شاملة التعلية ↕</th>
+                            <th onclick="sortBatchTable('ratio')">نسبة التعلية ↕</th>
+                            <th onclick="sortBatchTable('finalBase')">الوعاء السنوي النهائي ↕</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="batchTableBody">
     `;
     
-    for (var i = 0; i < batchEmployeesData.length; i++) {
-        var emp = batchEmployeesData[i];
+    for (var i = 0; i < dataToRender.length; i++) {
+        var emp = dataToRender[i];
         var payId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']) || '-';
         var name = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']) || '-';
         var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
@@ -1034,10 +1044,11 @@ function openBatchResultsModal() {
         var pTax = parseFloat(getVal(emp, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
         var add = parseFloat(emp['التعلية']) || 0;
         var totalWithAdd = parseFloat(emp['المكافأة شاملة التعلية']) || gross;
+        var ratio = parseFloat(emp['نسبة التعلية']) || 0;
         var finalBase = parseFloat(emp['الوعاء السنوي النهائي']) || 0;
         
         tableHTML += `
-            <tr>
+            <tr data-search="${normalizeArabic(payId + ' ' + name)}">
                 <td>${payId}</td>
                 <td style="text-align:right;">${name}</td>
                 <td>${gross.toFixed(2)}</td>
@@ -1046,6 +1057,7 @@ function openBatchResultsModal() {
                 <td>${pTax.toFixed(2)}</td>
                 <td style="color:var(--blue-primary); font-weight:bold;">${add.toFixed(2)}</td>
                 <td style="font-weight:bold;">${totalWithAdd.toFixed(2)}</td>
+                <td style="font-weight:bold; color:#059669;">${(ratio * 100).toFixed(2)}%</td>
                 <td>${finalBase.toFixed(2)}</td>
             </tr>
         `;
@@ -1059,6 +1071,65 @@ function openBatchResultsModal() {
     `;
     document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كاملاً كصورة</button>';
     showModal("عرض نتائج حساب التعلية الشاملة والبيانات الكاملة", tableHTML);
+}
+
+function filterBatchTableResults() {
+    var query = normalizeArabic(document.getElementById('batchSearchInput').value);
+    var rows = document.querySelectorAll('#batchTableBody tr');
+    rows.forEach(function(row) {
+        var text = row.getAttribute('data-search');
+        if (text.includes(query)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function sortBatchTable(columnKey) {
+    if (!sortDirections[columnKey]) { sortDirections[columnKey] = 'asc'; } else { sortDirections[columnKey] = sortDirections[columnKey] === 'asc' ? 'desc' : 'asc'; }
+    var dir = sortDirections[columnKey];
+
+    batchEmployeesData.sort(function(a, b) {
+        var valA, valB;
+        if (columnKey === 'payId') {
+            valA = normalizeArabic(getVal(a, ['رقم الصرف', 'رقم_الصرف', 'PayID']));
+            valB = normalizeArabic(getVal(b, ['رقم الصرف', 'رقم_الصرف', 'PayID']));
+            return dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        } else if (columnKey === 'name') {
+            valA = normalizeArabic(getVal(a, ['اسم الموظف', 'الاسم', 'Name']));
+            valB = normalizeArabic(getVal(b, ['اسم الموظف', 'الاسم', 'Name']));
+            return dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        } else if (columnKey === 'gross') {
+            valA = parseFloat(getVal(a, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
+            valB = parseFloat(getVal(b, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
+        } else if (columnKey === 'pBase') {
+            valA = parseFloat(getVal(a, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase'])) || 0;
+            valB = parseFloat(getVal(b, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase'])) || 0;
+        } else if (columnKey === 'pDays') {
+            valA = parseFloat(getVal(a, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'مدة العمل', 'PrevWorkDays', 'أيام'])) || 0;
+            valB = parseFloat(getVal(b, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'مدة العمل', 'PrevWorkDays', 'أيام'])) || 0;
+        } else if (columnKey === 'pTax') {
+            valA = parseFloat(getVal(a, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
+            valB = parseFloat(getVal(b, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
+        } else if (columnKey === 'add') {
+            valA = parseFloat(a['التعلية']) || 0;
+            valB = parseFloat(b['التعلية']) || 0;
+        } else if (columnKey === 'totalWithAdd') {
+            valA = parseFloat(a['المكافأة شاملة التعلية']) || 0;
+            valB = parseFloat(b['المكافأة شاملة التعلية']) || 0;
+        } else if (columnKey === 'ratio') {
+            valA = parseFloat(a['نسبة التعلية']) || 0;
+            valB = parseFloat(b['نسبة التعلية']) || 0;
+        } else if (columnKey === 'finalBase') {
+            valA = parseFloat(a['الوعاء السنوي النهائي']) || 0;
+            valB = parseFloat(b['الوعاء السنوي النهائي']) || 0;
+        }
+        return dir === 'asc' ? valA - valB : valB - valA;
+    });
+
+    renderBatchTable(batchEmployeesData);
+    document.getElementById('batchSearchInput').focus();
 }
 
 try {
@@ -1188,6 +1259,7 @@ function runBatchCalculation() {
         var totalAddition = 0;
         var totalWithAddition = gross;
         var b1Rounded10 = 0;
+        var ratioValue = 0;
 
         if (periodNet > 0 && k > 0) {
             var annualizedNetBonus = periodNet / k;
@@ -1217,16 +1289,21 @@ function runBatchCalculation() {
 
             totalAddition = parseFloat(Math.max(0, newPeriodTaxGrossUp - effectiveT0).toFixed(2));
             totalWithAddition = parseFloat((gross + totalAddition).toFixed(2));
+            
+            if (totalWithAddition > 0) {
+                ratioValue = parseFloat((totalAddition / totalWithAddition).toFixed(4));
+            }
         }
 
         emp['التعلية'] = totalAddition;
         emp['المكافأة شاملة التعلية'] = totalWithAddition;
+        emp['نسبة التعلية'] = ratioValue;
         emp['الوعاء السنوي النهائي'] = b1Rounded10;
         count++;
     }
 
     document.getElementById('batchStatus').innerText = "تم احتساب النتائج لـ " + count + " موظفاً بنجاح تام! يمكنك العرض الشامل (👁️) أو الحفظ (💾).";
-    alert("تم الانتهاء من احتساب التعلية والمكافأة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الضغط على أيقونة العين (👁️) لعرض الجدول الشامل بجميع التفاصيل أو الحفظ عبر زر (💾).");
+    alert("تم الانتهاء من احتساب التعلية والمكافأة والنسبة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الضغط على أيقونة العين (👁️) لعرض الجدول الشامل أو الحفظ عبر زر (💾).");
 }
 
 function exportBatchExcel() {
@@ -1626,7 +1703,7 @@ function resetSystem(sysNum) {
         document.getElementById('s2_prevWorkDays').value = "";
         document.getElementById('s2_prevTax').value = "";
         document.getElementById('s2_gross').value = "";
-        document.getElementById('s2_days').value = "30";
+        document.getElementById('s2_days').value = "";
         document.getElementById('s2_opt_none').checked = true;
         document.getElementById('s2_personalEx').value = "";
         document.getElementById('s2_disabilityEx').value = "0";
