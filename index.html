@@ -1258,21 +1258,21 @@ function renderBatchTable(dataToRender) {
                 <table id="batchResultsTable">
                     <thead>
                         <tr>
-                            <th style="width: 100px;">رقم الصرف <span class="sort-circle-btn" onclick="sortBatchTable('payId')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th class="col-name-th" style="width: 130px;">اسم الموظف <span class="sort-circle-btn" onclick="sortBatchTable('name')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">الاستحقاقات <span class="sort-circle-btn" onclick="sortBatchTable('gross')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">الوعاء السابق <span class="sort-circle-btn" onclick="sortBatchTable('pBase')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">مدة العمل السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pDays')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">الضريبة السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pTax')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">التعلية <span class="sort-circle-btn" onclick="sortBatchTable('addition')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 130px;">المكافأة شاملة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('totalWithAdd')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 100px;">نسبة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('ratio')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 130px;">الوعاء السنوي النهائي <span class="sort-circle-btn" onclick="sortBatchTable('finalBase')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 100px;">رقم الصرف <span class="sort-circle-btn" onclick="sortBatchTable('payId')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="col-name-th" style="width: 130px;">اسم الموظف <span class="sort-circle-btn" onclick="sortBatchTable('name')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">الاستحقاقات <span class="sort-circle-btn" onclick="sortBatchTable('gross')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">الوعاء السابق <span class="sort-circle-btn" onclick="sortBatchTable('pBase')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">مدة العمل السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pDays')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">الضريبة السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pTax')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">التعلية <span class="sort-circle-btn" onclick="sortBatchTable('addition')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 130px;">المكافأة شاملة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('totalWithAdd')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 100px;">نسبة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('ratio')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 130px;">الوعاء السنوي النهائي <span class="sort-circle-btn" onclick="sortBatchTable('finalBase')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
     `;
     
     // إضافة رؤوس الأعمدة المخصصة إن وجدت مع سهم الترتيب التلقائي
     for (var c = 0; c < customColumns.length; c++) {
-        tableHTML += `<th style="width: 130px;">${customColumns[c].title} <span class="sort-circle-btn" onclick="sortBatchTable('custom_${c}')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>`;
+        tableHTML += `<th style="width: 130px;">${customColumns[c].title} <span class="sort-circle-btn" onclick="sortBatchTable('custom_${c}')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>`;
     }
     
     tableHTML += `
@@ -1599,8 +1599,14 @@ function runBatchCalculation() {
         var prevTax = parseFloat(getVal(emp, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
         var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
         
-        var workDays = parseFloat(getVal(emp, ['مدة العمل بالفترة', 'أيام الفترة', 'Days'])) || 30;
-        var personalEx = parseFloat(getVal(emp, ['الإعفاء الشخصي', 'اعفاء شخصي', 'PersonalEx'])) || ((1666.67 / 30) * workDays);
+        // قراءة مدة العمل من الإكسيل مباشرة بدون افتراض 30 يوماً تلقائياً
+        var rawDaysVal = getVal(emp, ['مدة العمل بالفترة', 'أيام الفترة', 'Days', 'مدة العمل']);
+        var workDays = (rawDaysVal !== "" && !isNaN(parseFloat(rawDaysVal))) ? parseFloat(rawDaysVal) : 0;
+
+        // قراءة الإعفاء الشخصي من الإكسيل مباشرة وبدون حساب تلقائي إن لم يوجد
+        var rawPersonalEx = getVal(emp, ['الإعفاء الشخصي', 'اعفاء شخصي', 'PersonalEx']);
+        var personalEx = (rawPersonalEx !== "" && !isNaN(parseFloat(rawPersonalEx))) ? parseFloat(rawPersonalEx) : 0;
+
         var periodNet = Math.max(0, gross - personalEx);
 
         var prevPeriodNet = (prevBase / 360) * prevWorkDays;
