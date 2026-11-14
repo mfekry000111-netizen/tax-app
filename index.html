@@ -391,6 +391,11 @@
         .tax-table-container td input {
             width: 100%; padding: 4px 6px; font-size: 0.8rem; border: 1px solid var(--blue-border); border-radius: 4px; background: var(--card-bg); color: var(--text-main); text-align: center; font-weight: 600;
         }
+        /* توسيع خانة اسم الموظف في الجدول المنبثق للتعلية */
+        .tax-table-container td input.batch-edit-name, .tax-table-container th.col-name-th {
+            min-width: 200px;
+            text-align: right !important;
+        }
 
         .batch-actions-bar { display: flex; gap: 6px; align-items: center; }
         .icon-action-btn {
@@ -408,7 +413,7 @@
             display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 15px;
         }
         .modal-content {
-            background: var(--card-bg); width: 100%; max-width: 920px; border-radius: 16px; padding: 24px;
+            background: var(--card-bg); width: 100%; max-width: 980px; border-radius: 16px; padding: 24px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid var(--gray-border); max-height: 90vh; overflow-y: auto; color: var(--text-main);
         }
         .modal-header {
@@ -1039,15 +1044,15 @@ function renderBatchTable(dataToRender) {
                     <thead>
                         <tr>
                             <th onclick="sortBatchTable('payId')">رقم الصرف ↕</th>
-                            <th onclick="sortBatchTable('name')">اسم الموظف ↕</th>
+                            <th class="col-name-th" onclick="sortBatchTable('name')">اسم الموظف ↕</th>
                             <th onclick="sortBatchTable('gross')">الاستحقاقات ↕</th>
                             <th onclick="sortBatchTable('pBase')">الوعاء السابق ↕</th>
                             <th onclick="sortBatchTable('pDays')">مدة العمل السابقة ↕</th>
                             <th onclick="sortBatchTable('pTax')">الضريبة السابقة ↕</th>
-                            <th>التعلية</th>
-                            <th>المكافأة شاملة التعلية</th>
-                            <th>نسبة التعلية</th>
-                            <th>الوعاء السنوي النهائي</th>
+                            <th onclick="sortBatchTable('addition')">التعلية ↕</th>
+                            <th onclick="sortBatchTable('totalWithAdd')">المكافأة شاملة التعلية ↕</th>
+                            <th onclick="sortBatchTable('ratio')">نسبة التعلية ↕</th>
+                            <th onclick="sortBatchTable('finalBase')">الوعاء السنوي النهائي ↕</th>
                         </tr>
                     </thead>
                     <tbody id="batchTableBody">
@@ -1195,6 +1200,18 @@ function sortBatchTable(columnKey) {
         } else if (columnKey === 'pTax') {
             valA = parseFloat(getVal(a, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
             valB = parseFloat(getVal(b, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
+        } else if (columnKey === 'addition') {
+            valA = parseFloat(a['التعلية']) || 0;
+            valB = parseFloat(b['التعلية']) || 0;
+        } else if (columnKey === 'totalWithAdd') {
+            valA = parseFloat(a['المكافأة شاملة التعلية']) || 0;
+            valB = parseFloat(b['المكافأة شاملة التعلية']) || 0;
+        } else if (columnKey === 'ratio') {
+            valA = parseFloat(a['نسبة التعلية']) || 0;
+            valB = parseFloat(b['نسبة التعلية']) || 0;
+        } else if (columnKey === 'finalBase') {
+            valA = parseFloat(a['الوعاء السنوي النهائي']) || 0;
+            valB = parseFloat(b['الوعاء السنوي النهائي']) || 0;
         }
         return dir === 'asc' ? valA - valB : valB - valA;
     });
