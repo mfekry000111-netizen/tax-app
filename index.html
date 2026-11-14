@@ -426,11 +426,32 @@
         .tax-table-container td input {
             width: 100%; padding: 4px 6px; font-size: 0.8rem; border: 1px solid var(--blue-border); border-radius: 4px; background: var(--card-bg); color: var(--text-main); text-align: center; font-weight: 600;
         }
-        /* ضيق خانة الاسم لتسع الاسم الثلاثي فقط */
         .tax-table-container td input.batch-edit-name, .tax-table-container th.col-name-th {
             width: 130px !important;
             min-width: 130px !important;
             text-align: right !important;
+        }
+
+        /* سهم الترتيب داخل دائرة */
+        .sort-circle-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-right: 6px;
+            transition: background 0.2s, transform 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            vertical-align: middle;
+        }
+        .sort-circle-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
         }
 
         .batch-actions-bar { display: flex; gap: 6px; align-items: center; }
@@ -823,7 +844,7 @@
                     <button type="button" class="icon-action-btn view" title="عرض البيانات الشاملة المحسوبة" onclick="openBatchResultsModal()">
                         👁️
                     </button>
-                    <button type="button" class="icon-action-btn add-col" title="إضافة عمود مخصص واستدعاء بيان من التشريح" onclick="openAddCustomColumnModal()">
+                    <button type="button" class="icon-action-btn add-col" title="إضافة عمود مخصص واستدعاء أي بند بالتفصيل" onclick="openAddCustomColumnModal()">
                         ➕
                     </button>
                     <button type="button" class="icon-action-btn" title="استيراد ملف إكسيل">
@@ -872,7 +893,7 @@ let globalEmployeesData = [];
 let currentRawAllowance = 0;
 let s2_employeeSelected = false;
 let batchEmployeesData = [];
-let customColumns = []; // لتخزين الأعمدة المضافة مخصصاً
+let customColumns = []; // تخزين الأعمدة المضافة مخصصاً
 let currentSelectedEmpIndex = -1;
 
 try {
@@ -1078,28 +1099,48 @@ function openAddCustomColumnModal() {
         alert("برجاء استيراد ملف الإكسيل وحساب التعلية أولاً قبل إضافة أعمدة مخصصة.");
         return;
     }
+    
+    // استخراج كل الحقول والبنود المتاحة داخل البيانات (حتى المخفية أو غير الظاهرة بالجدول الرئيسي)
+    var allKeysSet = new Set();
+    for (var i = 0; i < batchEmployeesData.length; i++) {
+        var keys = Object.keys(batchEmployeesData[i]);
+        for (var k = 0; k < keys.length; k++) {
+            allKeysSet.add(keys[k]);
+        }
+    }
+    
+    var optionsHTML = '';
+    allKeysSet.forEach(function(key) {
+        optionsHTML += `<option value="${key}">${key}</option>`;
+    });
+    
+    // إضافة البنود الحسابية الأساسية الداخلية أيضاً
+    optionsHTML += `
+        <option value="calc_annualTax">إجمالي الضريبة السنوية</option>
+        <option value="calc_periodTax">ضريبة الفترة المستقطعة النهائية</option>
+        <option value="calc_combinedPeriodTax">ضريبة الفترة المجمعة</option>
+        <option value="calc_annualBase">الوعاء السنوي المجمع</option>
+        <option value="calc_periodNet">صافي دخل الفترة الحالية</option>
+        <option value="calc_totalExemptions">إجمالي إعفاءات الفترة</option>
+    `;
+
     var html = `
         <div style="display:flex; flex-direction:column; gap:12px;">
             <div class="input-group">
-                <label>رأس العمود الجديد (اسم البيان):</label>
-                <input type="text" id="customColTitle" placeholder="مثال: إجمالي الضريبة السنوية..." autocomplete="off">
+                <label>رأس العمود الجديد (اسم البيان المخصص):</label>
+                <input type="text" id="customColTitle" placeholder="مثال: التأمينات الاجتماعية أو الصناديق..." autocomplete="off">
             </div>
             <div class="input-group">
-                <label>اختر البيان أو القيمة المراد استدعاؤها:</label>
+                <label>اختر البند المطلوب من البرنامج (جميع البنود المتاحة والمخفية):</label>
                 <select id="customColSource">
-                    <option value="annualTax">إجمالي الضريبة السنوية (بعد الوعاء السنوي النهائي)</option>
-                    <option value="periodTax">ضريبة الفترة المستقطعة النهائية</option>
-                    <option value="combinedPeriodTax">ضريبة الفترة المجمعة</option>
-                    <option value="annualBase">الوعاء السنوي المجمع</option>
-                    <option value="periodNet">صافي دخل الفترة الحالية</option>
-                    <option value="totalExemptions">إجمالي إعفاءات الفترة</option>
+                    ${optionsHTML}
                 </select>
             </div>
-            <button type="button" class="modal-btn" onclick="saveCustomColumn()">💾 حفظ وإعادة احتساب الجدول</button>
+            <button type="button" class="modal-btn" onclick="saveCustomColumn()">💾 حفظ العمود وإعادة الاحتساب</button>
         </div>
     `;
     document.getElementById('modalActionsBar').innerHTML = '';
-    showModal("إضافة عمود مخصص واستدعاء بيان", html);
+    showModal("إضافة عمود مخصص واختيار أي بند بالتفصيل الممل", html);
 }
 
 function saveCustomColumn() {
@@ -1120,7 +1161,7 @@ function saveCustomColumn() {
 function renderBatchTable(dataToRender) {
     var tableHTML = `
         <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
-            <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين - قابلة للتعديل المباشر وتوسيع الأعمدة):</p>
+            <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين - قابلة للتعديل وتوسيع الأعمدة):</p>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
                 <div class="input-group" style="flex: 1; margin-bottom: 0;">
                     <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه..." oninput="filterBatchTableResults()" autocomplete="off">
@@ -1130,16 +1171,16 @@ function renderBatchTable(dataToRender) {
                 <table id="batchResultsTable">
                     <thead>
                         <tr>
-                            <th style="width: 100px;" onclick="sortBatchTable('payId')">رقم الصرف ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th class="col-name-th" style="width: 130px;" onclick="sortBatchTable('name')">اسم الموظف ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;" onclick="sortBatchTable('gross')">الاستحقاقات ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;" onclick="sortBatchTable('pBase')">الوعاء السابق ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;" onclick="sortBatchTable('pDays')">مدة العمل السابقة ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;" onclick="sortBatchTable('pTax')">الضريبة السابقة ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;" onclick="sortBatchTable('addition')">التعلية ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 130px;" onclick="sortBatchTable('totalWithAdd')">المكافأة شاملة التعلية ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 100px;" onclick="sortBatchTable('ratio')">نسبة التعلية ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 130px;" onclick="sortBatchTable('finalBase')">الوعاء السنوي النهائي ↕<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 100px;">رقم الصرف <span class="sort-circle-btn" onclick="sortBatchTable('payId')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="col-name-th" style="width: 130px;">اسم الموظف <span class="sort-circle-btn" onclick="sortBatchTable('name')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">الاستحقاقات <span class="sort-circle-btn" onclick="sortBatchTable('gross')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">الوعاء السابق <span class="sort-circle-btn" onclick="sortBatchTable('pBase')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">مدة العمل السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pDays')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">الضريبة السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pTax')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">التعلية <span class="sort-circle-btn" onclick="sortBatchTable('addition')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 130px;">المكافأة شاملة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('totalWithAdd')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 100px;">نسبة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('ratio')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 130px;">الوعاء السنوي النهائي <span class="sort-circle-btn" onclick="sortBatchTable('finalBase')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
     `;
     
     // إضافة رؤوس الأعمدة المخصصة إن وجدت
@@ -1190,10 +1231,16 @@ function renderBatchTable(dataToRender) {
                 <td>${finalBase.toFixed(2)}</td>
         `;
         
-        // عرض قيم الأعمدة المخصصة المحسوبة لهذا الموظف
+        // جلب قيم الأعمدة المخصصة بناءً على مصدرها (سواء من أعمدة الملف أو الحسابات الداخلية)
         for (var c = 0; c < customColumns.length; c++) {
-            var valCol = emp['custom_' + customColumns[c].source] || 0;
-            tableHTML += `<td style="font-weight:bold; color:var(--blue-primary);">${parseFloat(valCol).toFixed(2)}</td>`;
+            var src = customColumns[c].source;
+            var valCol = 0;
+            if (src.startsWith('calc_')) {
+                valCol = emp['custom_' + src] || 0;
+            } else {
+                valCol = getVal(emp, [src]) || 0;
+            }
+            tableHTML += `<td style="font-weight:bold; color:var(--blue-primary);">${isNaN(valCol) ? valCol : parseFloat(valCol).toFixed(2)}</td>`;
         }
         
         tableHTML += `</tr>`;
@@ -1219,6 +1266,7 @@ function initColResize(e, resizer) {
     var th = resizer.parentElement;
     var startX = e.pageX;
     var startWidth = th.offsetWidth;
+    resizer.classList.add('resizing');
 
     function onMouseMove(moveEvent) {
         var diff = moveEvent.pageX - startX;
@@ -1229,6 +1277,7 @@ function initColResize(e, resizer) {
     }
 
     function onMouseUp() {
+        resizer.classList.remove('resizing');
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
     }
@@ -1525,12 +1574,12 @@ function runBatchCalculation() {
         for (var c = 0; c < customColumns.length; c++) {
             var src = customColumns[c].source;
             var valToAssign = 0;
-            if (src === 'annualTax') valToAssign = annualTaxVal;
-            else if (src === 'periodTax') valToAssign = periodTaxVal;
-            else if (src === 'combinedPeriodTax') valToAssign = combinedPeriodTaxVal;
-            else if (src === 'annualBase') valToAssign = annualBaseVal;
-            else if (src === 'periodNet') valToAssign = periodNet;
-            else if (src === 'totalExemptions') valToAssign = personalEx;
+            if (src === 'calc_annualTax') valToAssign = annualTaxVal;
+            else if (src === 'calc_periodTax') valToAssign = periodTaxVal;
+            else if (src === 'calc_combinedPeriodTax') valToAssign = combinedPeriodTaxVal;
+            else if (src === 'calc_annualBase') valToAssign = annualBaseVal;
+            else if (src === 'calc_periodNet') valToAssign = periodNet;
+            else if (src === 'calc_totalExemptions') valToAssign = personalEx;
             
             emp['custom_' + src] = valToAssign;
         }
