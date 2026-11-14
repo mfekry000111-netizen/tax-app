@@ -388,6 +388,9 @@
         .tax-table-container th, .tax-table-container td { border: 1px solid var(--gray-border); padding: 8px 6px; }
         .tax-table-container th { background: var(--blue-primary); color: #ffffff; font-weight: 700; cursor: pointer; user-select: none; }
         .tax-table-container th:hover { filter: brightness(1.15); }
+        .tax-table-container td input {
+            width: 100%; padding: 4px 6px; font-size: 0.8rem; border: 1px solid var(--blue-border); border-radius: 4px; background: var(--card-bg); color: var(--text-main); text-align: center; font-weight: 600;
+        }
 
         .batch-actions-bar { display: flex; gap: 6px; align-items: center; }
         .icon-action-btn {
@@ -1027,9 +1030,9 @@ function openBatchResultsModal() {
 function renderBatchTable(dataToRender) {
     var tableHTML = `
         <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
-            <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين):</p>
+            <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين - قابلة للتعديل المباشر):</p>
             <div class="input-group" style="margin-bottom: 12px;">
-                <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه..." oninput="filterBatchTableResults()" autocomplete="off">
+                <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه (بدون ترتيب)..." oninput="filterBatchTableResults()" autocomplete="off">
             </div>
             <div class="tax-table-container">
                 <table id="batchResultsTable">
@@ -1041,10 +1044,10 @@ function renderBatchTable(dataToRender) {
                             <th onclick="sortBatchTable('pBase')">الوعاء السابق ↕</th>
                             <th onclick="sortBatchTable('pDays')">مدة العمل السابقة ↕</th>
                             <th onclick="sortBatchTable('pTax')">الضريبة السابقة ↕</th>
-                            <th onclick="sortBatchTable('add')">التعلية ↕</th>
-                            <th onclick="sortBatchTable('totalWithAdd')">المكافأة شاملة التعلية ↕</th>
-                            <th onclick="sortBatchTable('ratio')">نسبة التعلية ↕</th>
-                            <th onclick="sortBatchTable('finalBase')">الوعاء السنوي النهائي ↕</th>
+                            <th>التعلية</th>
+                            <th>المكافأة شاملة التعلية</th>
+                            <th>نسبة التعلية</th>
+                            <th>الوعاء السنوي النهائي</th>
                         </tr>
                     </thead>
                     <tbody id="batchTableBody">
@@ -1052,8 +1055,8 @@ function renderBatchTable(dataToRender) {
     
     for (var i = 0; i < dataToRender.length; i++) {
         var emp = dataToRender[i];
-        var payId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']) || '-';
-        var name = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']) || '-';
+        var payId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']) || '';
+        var name = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']) || '';
         var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
         var pBase = parseFloat(getVal(emp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase'])) || 0;
         var pDays = parseFloat(getVal(emp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'مدة العمل', 'PrevWorkDays', 'أيام'])) || 0;
@@ -1074,17 +1077,17 @@ function renderBatchTable(dataToRender) {
         }
         
         tableHTML += `
-            <tr data-search="${normalizeArabic(payId + ' ' + name)}">
-                <td>${payId}</td>
-                <td style="text-align:right;">${name}</td>
-                <td>${gross.toFixed(2)}</td>
-                <td>${pBase.toFixed(2)}</td>
-                <td>${pDays}</td>
-                <td>${pTax.toFixed(2)}</td>
-                <td style="color:var(--blue-primary); font-weight:bold;">${add.toFixed(2)}</td>
-                <td style="font-weight:bold;">${totalWithAdd.toFixed(2)}</td>
-                <td><span style="${ratioStyle}" ${ratioOnClick} title="${ratioPercent > 40 ? 'اضغط لمعرفة سبب ارتفاع النسبة!' : ''}">${ratioPercent.toFixed(2)}%</span></td>
-                <td>${finalBase.toFixed(2)}</td>
+            <tr data-search="${normalizeArabic(payId + ' ' + name)}" data-index="${i}">
+                <td><input type="text" class="batch-edit-payid" value="${payId}" onchange="updateBatchField(${i}, 'payId', this.value)"></td>
+                <td style="text-align:right;"><input type="text" class="batch-edit-name" value="${name}" onchange="updateBatchField(${i}, 'name', this.value)" style="text-align:right;"></td>
+                <td><input type="number" class="batch-edit-gross" value="${gross}" onchange="updateBatchField(${i}, 'gross', this.value)"></td>
+                <td><input type="number" class="batch-edit-pbase" value="${pBase}" onchange="updateBatchField(${i}, 'pBase', this.value)"></td>
+                <td><input type="number" class="batch-edit-pdays" value="${pDays}" onchange="updateBatchField(${i}, 'pDays', this.value)"></td>
+                <td><input type="number" class="batch-edit-ptax" value="${pTax}" onchange="updateBatchField(${i}, 'pTax', this.value)"></td>
+                <td style="color:var(--blue-primary); font-weight:bold;" class="col-add">${add.toFixed(2)}</td>
+                <td style="font-weight:bold;" class="col-total">${totalWithAdd.toFixed(2)}</td>
+                <td><span style="${ratioStyle}" ${ratioOnClick} class="col-ratio" title="${ratioPercent > 40 ? 'اضغط لمعرفة سبب ارتفاع النسبة!' : ''}">${ratioPercent.toFixed(2)}%</span></td>
+                <td class="col-finalbase">${finalBase.toFixed(2)}</td>
             </tr>
         `;
     }
@@ -1095,8 +1098,36 @@ function renderBatchTable(dataToRender) {
             </div>
         </div>
     `;
-    document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كاملاً كصورة</button>';
-    showModal("عرض نتائج حساب التعلية الشاملة والبيانات الكاملة", tableHTML);
+    
+    document.getElementById('modalActionsBar').innerHTML = `
+        <button type="button" class="modal-btn" style="background:#16a34a;" onclick="saveAndRecalculateBatch()">💾 حفظ التعديلات وإعادة الحساب</button>
+        <button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كاملاً كصورة</button>
+    `;
+    showModal("عرض وتعديل نتائج حساب التعلية الشاملة", tableHTML);
+}
+
+function updateBatchField(index, fieldKey, val) {
+    if (!batchEmployeesData[index]) return;
+    var emp = batchEmployeesData[index];
+    if (fieldKey === 'payId') {
+        emp['رقم الصرف'] = val;
+    } else if (fieldKey === 'name') {
+        emp['اسم الموظف'] = val;
+    } else if (fieldKey === 'gross') {
+        emp['إجمالي الاستحقاقات'] = parseFloat(val) || 0;
+    } else if (fieldKey === 'pBase') {
+        emp['آخر وعاء سابق'] = parseFloat(val) || 0;
+    } else if (fieldKey === 'pDays') {
+        emp['مدة العمل للوعاء السابق'] = parseFloat(val) || 0;
+    } else if (fieldKey === 'pTax') {
+        emp['ضريبة آخر وعاء سابق'] = parseFloat(val) || 0;
+    }
+}
+
+function saveAndRecalculateBatch() {
+    runBatchCalculation();
+    renderBatchTable(batchEmployeesData);
+    alert("تم حفظ التعديلات وإعادة حساب التعلية للجميع بنجاح!");
 }
 
 function explainHighRatio(empName, ratioVal, grossVal, pBaseVal, pDaysVal, addVal) {
@@ -1106,7 +1137,7 @@ function explainHighRatio(empName, ratioVal, grossVal, pBaseVal, pDaysVal, addVa
             <p style="margin-bottom:8px;"><strong>نسبة التعلية الحالية:</strong> ${ratioVal}% (إجمالي التعلية: ${addVal.getDecimal ? addVal : addVal.toFixed(2)} ج.م من إجمالي مكافأة ${grossVal} ج.م)</p>
             <p style="margin-bottom:8px;"><strong>الأسباب الفنية الضريبية لارتفاع النسبة:</strong></p>
             <ul style="margin-right:20px; font-size:0.9rem; display:flex; flex-direction:column; gap:6px;">
-                <li><strong>تراكم الوعاء السنوي السابق والحدود الحدية:</strong> الوعاء السابق (${pBaseVal} ج.م) المجمع على مدار (${pDaysVal} يوم) أدى إلى وصول إجمالي الوعاء السنوي المستهدف (` + (pBaseVal + (grossVal * 360 / 30)) + ` ج.م تقريباً) إلى شرائح ضريبية حدية عليا (مثل 22.5% أو 25% أو 27.5%).</li>
+                <li><strong>تراكم الوعاء السنوي السابق والحدود الحدية:</strong> الوعاء السابق (${pBaseVal} ج.م) المجمع على مدار (${pDaysVal} يوم) أدى إلى وصول إجمالي الوعاء السنوي المستهدف إلى شرائح ضريبية حدية عليا (مثل 22.5% أو 25% أو 27.5%).</li>
                 <li><strong>طبيعة نظام التعلية الجبرية (Gross-up):</strong> لكي يتم صافي صرف قيمة المكافأة دون أن تتحمل الشركة أو ينقص صافي المبلغ، يتم حساب الضريبة التصاعدية على إجمالي الوعاء المضاف، مما يجعل ضريبة الشريحة العليا تطبق بالكامل على قيمة المكافأة الكبيرة نسبةً إلى إجمالي الدخل.</li>
                 <li><strong>تناسب المدة الزمنية:</strong> قصر عدد أيام الفترة الحالية مقارنة بالمكافأة يؤدي إلى تعظيم الأثر السنوي لمعامل المدة ($k$).</li>
             </ul>
@@ -1116,11 +1147,21 @@ function explainHighRatio(empName, ratioVal, grossVal, pBaseVal, pDaysVal, addVa
 }
 
 function filterBatchTableResults() {
-    var query = normalizeArabic(document.getElementById('batchSearchInput').value);
+    var rawQuery = document.getElementById('batchSearchInput').value;
+    var normQuery = normalizeArabic(rawQuery);
+    var queryWords = normQuery.split(/\s+/).filter(function(w) { return w.length > 0; });
     var rows = document.querySelectorAll('#batchTableBody tr');
+    
     rows.forEach(function(row) {
         var text = row.getAttribute('data-search');
-        if (text.includes(query)) {
+        var allFound = true;
+        for (var w = 0; w < queryWords.length; w++) {
+            if (!text.includes(queryWords[w])) {
+                allFound = false;
+                break;
+            }
+        }
+        if (allFound || queryWords.length === 0) {
             row.style.display = '';
         } else {
             row.style.display = 'none';
@@ -1154,18 +1195,6 @@ function sortBatchTable(columnKey) {
         } else if (columnKey === 'pTax') {
             valA = parseFloat(getVal(a, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
             valB = parseFloat(getVal(b, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
-        } else if (columnKey === 'add') {
-            valA = parseFloat(a['التعلية']) || 0;
-            valB = parseFloat(b['التعلية']) || 0;
-        } else if (columnKey === 'totalWithAdd') {
-            valA = parseFloat(a['المكافأة شاملة التعلية']) || 0;
-            valB = parseFloat(b['المكافأة شاملة التعلية']) || 0;
-        } else if (columnKey === 'ratio') {
-            valA = parseFloat(a['نسبة التعلية']) || 0;
-            valB = parseFloat(b['نسبة التعلية']) || 0;
-        } else if (columnKey === 'finalBase') {
-            valA = parseFloat(a['الوعاء السنوي النهائي']) || 0;
-            valB = parseFloat(b['الوعاء السنوي النهائي']) || 0;
         }
         return dir === 'asc' ? valA - valB : valB - valA;
     });
@@ -1347,7 +1376,6 @@ function runBatchCalculation() {
     }
 
     document.getElementById('batchStatus').innerText = "تم احتساب النتائج لـ " + count + " موظفاً بنجاح تام! يمكنك العرض الشامل (👁️) أو الحفظ (💾).";
-    alert("تم الانتهاء من احتساب التعلية والمكافأة والنسبة والوعاء لـ " + count + " موظفاً بنجاح! يمكنك الضغط على أيقونة العين (👁️) لعرض الجدول الشامل أو الحفظ عبر زر (💾).");
 }
 
 function exportBatchExcel() {
@@ -1409,7 +1437,6 @@ function filterCustomDropdown(systemNum) {
         
         var isPayIdMatch = normPayId.includes(normalizeArabic(rawInput));
 
-        // مطابقة مرنة تدعم الاسم الأول مع الرابع أو أي كلمات متفرقة وبغض النظر عن الترتيب
         var allWordsFound = true;
         for (var w = 0; w < queryWords.length; w++) {
             var word = queryWords[w];
@@ -1601,7 +1628,7 @@ function fillEmployeeData(matchedEmp, systemNum) {
     var profitVal = getVal(matchedEmp, ['الأرباح', 'أرباح', 'Profits']);
     var pBase = getVal(matchedEmp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase']);
     var pDays = getVal(matchedEmp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'PrevDays', 'مدة العمل']);
-    var pTax = getVal(matchedEmp, ['ضريبة الوعاء السابق', 'ضريبة سابقة', 'PrevTax']);
+    var pTax = getVal(matchedEmp, ['ضريبة الوعاء السابق', 'ضريبة سابقة', 'ضريبة آخر وعاء سابق', 'PrevTax']);
 
     var prefix = systemNum === 1 ? 's1_' : 's2_';
 
