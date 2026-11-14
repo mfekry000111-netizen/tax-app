@@ -23,6 +23,26 @@
             --pink-btn-hover: #e11d48;
         }
 
+        /* سيم المعدن الرمادي الجديد */
+        body.theme-slate-metallic {
+            --bg-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --blue-primary: #38bdf8;
+            --blue-light: #0f172a;
+            --blue-border: #475569;
+            --gray-light: #334155;
+            --gray-border: #475569;
+            --pink-btn-bg: #f43f5e;
+            --pink-btn-hover: #e11d48;
+        }
+        body.theme-slate-metallic input, body.theme-slate-metallic select { background: #0f172a; border-color: #475569; color: #f8fafc; }
+        body.theme-slate-metallic input:focus, body.theme-slate-metallic select:focus { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+        body.theme-slate-metallic .app-card { border: 1px solid #475569; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); }
+        body.theme-slate-metallic .section-box, body.theme-slate-metallic .result-box-item { background: #0f172a; border-color: #475569; color: #f8fafc; }
+        body.theme-slate-metallic .box-net-final { background: #0284c7 !important; }
+
         /* سيم البني */
         body.theme-brown {
             --bg-gradient: linear-gradient(135deg, #3e2723 0%, #4e342e 50%, #5d4037 100%);
@@ -260,16 +280,17 @@
         .nav-tab:hover { color: var(--blue-primary); background: rgba(0,0,0,0.05); }
         .nav-tab.active { background: var(--blue-primary); color: white; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
 
+        /* القائمة المنسدلة الجديدة الأكثر أناقة وصقلاً وضغطاً */
         .custom-dropdown {
-            position: absolute; bottom: 100%; left: 0; right: 0; max-height: 160px; overflow-y: auto;
-            background: var(--card-bg); border: 1px solid var(--gray-border); border-radius: 10px; z-index: 9999;
-            box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.1); margin-bottom: 4px;
+            position: absolute; top: calc(100% + 4px); left: 0; right: 0; max-height: 180px; overflow-y: auto;
+            background: var(--card-bg); border: 1px solid var(--blue-border); border-radius: 12px; z-index: 9999;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); padding: 4px;
         }
         .dropdown-item {
-            padding: 9px 12px; cursor: pointer; font-size: 0.9rem; color: var(--text-main); font-weight: 600;
-            border-bottom: 1px solid var(--gray-border); transition: background 0.15s;
+            padding: 8px 12px; cursor: pointer; font-size: 0.88rem; color: var(--text-main); font-weight: 600;
+            border-radius: 8px; border-bottom: 1px solid var(--gray-light); transition: all 0.15s ease;
         }
-        .dropdown-item:hover { background: var(--blue-light); color: var(--blue-primary); }
+        .dropdown-item:hover { background: var(--blue-light); color: var(--blue-primary); transform: translateX(-2px); }
         .dropdown-item:last-child { border-bottom: none; }
         .hidden-dropdown { display: none !important; }
 
@@ -332,14 +353,16 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 1.2rem;
             flex-shrink: 0;
             box-shadow: 0 3px 8px rgba(0,0,0,0.15);
             transition: transform 0.2s;
         }
         .contact-action-btn:hover { transform: scale(1.08); }
-        .call-btn { background: #16a34a; color: white; }
-        .whatsapp-btn { background: #25d366; color: white; }
+        .call-btn { background: #16a34a; color: white; font-size: 1.2rem; }
+        
+        /* أيقونة الواتساب الحقيقية المخصصة بدقة */
+        .whatsapp-btn { background: #25d366; color: white; display: flex; align-items: center; justify-content: center; }
+        .whatsapp-btn svg { width: 24px; height: 24px; fill: white; }
 
         button.action-btn { 
             width: 100%; padding: 14px; background: var(--blue-primary); color: white; border: none; 
@@ -387,13 +410,15 @@
         .tax-table-container { 
             width: 100%; 
             overflow-x: auto; 
-            overflow-y: hidden;
+            overflow-y: auto;
+            max-height: 65vh;
             margin-top: 10px; 
             scrollbar-width: thin;
             scrollbar-color: var(--blue-primary) var(--gray-light);
         }
         .tax-table-container::-webkit-scrollbar {
             height: 10px;
+            width: 10px;
         }
         .tax-table-container::-webkit-scrollbar-track {
             background: var(--gray-light);
@@ -557,25 +582,27 @@
             </div>
             <div class="input-group">
                 <label>اسم الموظف أو رقم الصرف:</label>
-                <input type="text" id="s1_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" oninput="filterCustomDropdown(1)" onfocus="filterCustomDropdown(1)">
+                <input type="text" id="s1_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterCustomDropdown(1)" onfocus="filterCustomDropdown(1)">
                 <div id="s1_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>رقم الصرف:</label>
-                <input type="text" id="s1_payId" placeholder="ابحث برقم الصرف..." autocomplete="off" oninput="filterPayIdDropdown(1)" onfocus="filterPayIdDropdown(1)">
+                <input type="text" id="s1_payId" placeholder="ابحث برقم الصرف..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterPayIdDropdown(1)" onfocus="filterPayIdDropdown(1)">
                 <div id="s1_payId_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الرقم القومي:</label>
-                <input type="text" id="s1_natId" placeholder="ابحث بالرقم القومي..." autocomplete="off" oninput="filterNatIdDropdown(1)" onfocus="filterNatIdDropdown(1)">
+                <input type="text" id="s1_natId" placeholder="ابحث بالرقم القومي..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterNatIdDropdown(1)" onfocus="filterNatIdDropdown(1)">
                 <div id="s1_natId_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>رقم التليفون:</label>
                 <div class="phone-input-wrapper">
-                    <input type="text" id="s1_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(1); updateContactLinks(1);" onfocus="filterPhoneDropdown(1)">
+                    <input type="text" id="s1_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterPhoneDropdown(1); updateContactLinks(1);" onfocus="filterPhoneDropdown(1)">
                     <a id="s1_callBtn" href="#" class="contact-action-btn call-btn" title="اتصال هاتفي" style="display:none;">📞</a>
-                    <a id="s1_waBtn" href="#" target="_blank" class="contact-action-btn whatsapp-btn" title="مراسلة واتساب" style="display:none;">💬</a>
+                    <a id="s1_waBtn" href="#" target="_blank" class="contact-action-btn whatsapp-btn" title="مراسلة واتساب" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01C17.18 3.03 14.69 2 12.04 2zM12.04 20.1c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31c-.82-1.31-1.25-2.83-1.25-4.38 0-4.56 3.71-8.27 8.27-8.27 2.21 0 4.29.86 5.85 2.42 1.56 1.56 2.42 3.64 2.42 5.85 0 4.56-3.71 8.27-8.27 8.27zm4.53-6.19c-.25-.13-1.47-.73-1.7-.81-.23-.08-.4-.13-.57.13-.17.25-.66.81-.81.98-.15.17-.3.19-.55.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.73-.15-.25-.02-.39.11-.52.11-.11.25-.3.38-.45.13-.15.17-.25.25-.42.08-.17.04-.32-.02-.45-.06-.13-.57-1.38-.78-1.89-.2-.48-.41-.42-.57-.43h-.49c-.17 0-.45.06-.69.32-.24.25-.91.89-.91 2.17 0 1.28.93 2.52 1.06 2.7.13.18 1.83 2.79 4.43 3.91.62.27 1.1.43 1.48.55.62.2 1.18.17 1.62.1.5-.08 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.29z"/></svg>
+                    </a>
                 </div>
                 <div id="s1_phone_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
@@ -585,11 +612,11 @@
             <div class="section-title">ثانياً: الاستحقاقات ومدة العمل الثابتة</div>
             <div class="input-group">
                 <label>إجمالي الاستحقاقات (جنية):</label>
-                <input type="number" id="grossSalary" value="" placeholder="أدخل الاستحقاقات">
+                <input type="number" id="grossSalary" value="" placeholder="أدخل الاستحقاقات" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل الشهرية (ثابتة):</label>
-                <input type="number" id="attendanceDays" value="30" readonly style="font-weight:bold;">
+                <input type="number" id="attendanceDays" value="30" readonly style="font-weight:bold;" autocomplete="off">
             </div>
         </div>
 
@@ -608,35 +635,35 @@
             </div>
             <div class="input-group" id="s1_disabilityGroup" style="display: none; margin-top: 10px;">
                 <label>إعفاء الإعاقة (جنية - قابل للتعديل):</label>
-                <input type="number" id="s1_disabilityEx" value="0" placeholder="833.33">
+                <input type="number" id="s1_disabilityEx" value="0" placeholder="833.33" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>العلاوة المنضمة (جنية):</label>
-                <input type="number" id="allowance" value="" placeholder="0">
+                <input type="number" id="allowance" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>التأمينات الاجتماعية (جنية):</label>
-                <input type="number" id="insurance" value="" placeholder="1670">
+                <input type="number" id="insurance" value="" placeholder="1670" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>قسط مدة سابقة (جنية):</label>
-                <input type="number" id="prevLoan" value="" placeholder="0">
+                <input type="number" id="prevLoan" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>اشتراكات الصناديق (جنية):</label>
-                <input type="number" id="funds" value="" placeholder="0">
+                <input type="number" id="funds" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الإعفاء الشخصي والشريحة الشهري:</label>
-                <input type="number" id="personalExemption" value="5000" readonly>
+                <input type="number" id="personalExemption" value="5000" readonly autocomplete="off">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الأرباح (جنية):</label>
-                <input type="number" id="otherExemption" value="" placeholder="0">
+                <input type="number" id="otherExemption" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>استقطاعات أخرى (سكر ومحمول وشهدا وغيره):</label>
-                <input type="number" id="otherDeductions" value="" placeholder="0">
+                <input type="number" id="otherDeductions" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
         </div>
 
@@ -688,25 +715,27 @@
             </div>
             <div class="input-group">
                 <label>اسم الموظف أو رقم الصرف:</label>
-                <input type="text" id="s2_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" oninput="filterCustomDropdown(2)" onfocus="filterCustomDropdown(2)">
+                <input type="text" id="s2_empName" placeholder="مثال: أحمد محمد..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterCustomDropdown(2)" onfocus="filterCustomDropdown(2)">
                 <div id="s2_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>رقم الصرف:</label>
-                <input type="text" id="s2_payId" placeholder="ابحث برقم الصرف..." autocomplete="off" oninput="filterPayIdDropdown(2)" onfocus="filterPayIdDropdown(2)">
+                <input type="text" id="s2_payId" placeholder="ابحث برقم الصرف..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterPayIdDropdown(2)" onfocus="filterPayIdDropdown(2)">
                 <div id="s2_payId_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الرقم القومي:</label>
-                <input type="text" id="s2_natId" placeholder="ابحث بالرقم القومي..." autocomplete="off" oninput="filterNatIdDropdown(2)" onfocus="filterNatIdDropdown(2)">
+                <input type="text" id="s2_natId" placeholder="ابحث برقم القومي..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterNatIdDropdown(2)" onfocus="filterNatIdDropdown(2)">
                 <div id="s2_natId_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>رقم التليفون:</label>
                 <div class="phone-input-wrapper">
-                    <input type="text" id="s2_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" oninput="filterPhoneDropdown(2); updateContactLinks(2);" onfocus="filterPhoneDropdown(2)">
+                    <input type="text" id="s2_phone" placeholder="ابحث برقم التليفون..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterPhoneDropdown(2); updateContactLinks(2);" onfocus="filterPhoneDropdown(2)">
                     <a id="s2_callBtn" href="#" class="contact-action-btn call-btn" title="اتصال هاتفي" style="display:none;">📞</a>
-                    <a id="s2_waBtn" href="#" target="_blank" class="contact-action-btn whatsapp-btn" title="مراسلة واتساب" style="display:none;">💬</a>
+                    <a id="s2_waBtn" href="#" target="_blank" class="contact-action-btn whatsapp-btn" title="مراسلة واتساب" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01C17.18 3.03 14.69 2 12.04 2zM12.04 20.1c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31c-.82-1.31-1.25-2.83-1.25-4.38 0-4.56 3.71-8.27 8.27-8.27 2.21 0 4.29.86 5.85 2.42 1.56 1.56 2.42 3.64 2.42 5.85 0 4.56-3.71 8.27-8.27 8.27zm4.53-6.19c-.25-.13-1.47-.73-1.7-.81-.23-.08-.4-.13-.57.13-.17.25-.66.81-.81.98-.15.17-.3.19-.55.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.73-.15-.25-.02-.39.11-.52.11-.11.25-.3.38-.45.13-.15.17-.25.25-.42.08-.17.04-.32-.02-.45-.06-.13-.57-1.38-.78-1.89-.2-.48-.41-.42-.57-.43h-.49c-.17 0-.45.06-.69.32-.24.25-.91.89-.91 2.17 0 1.28.93 2.52 1.06 2.7.13.18 1.83 2.79 4.43 3.91.62.27 1.1.43 1.48.55.62.2 1.18.17 1.62.1.5-.08 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.29z"/></svg>
+                    </a>
                 </div>
                 <div id="s2_phone_dropdown" class="custom-dropdown hidden-dropdown"></div>
             </div>
@@ -716,15 +745,15 @@
             <div class="section-title">ثانياً: بيانات الوعاء والضريبة السابقة</div>
             <div class="input-group">
                 <label>آخر وعاء سابق (جنية):</label>
-                <input type="number" id="s2_prevBase" value="" placeholder="فارغ إن لم يوجد">
+                <input type="number" id="s2_prevBase" value="" placeholder="فارغ إن لم يوجد" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل الخاصة بأخر وعاء سابق (أيام):</label>
-                <input type="number" id="s2_prevWorkDays" value="" placeholder="فارغ إن لم يوجد">
+                <input type="number" id="s2_prevWorkDays" value="" placeholder="فارغ إن لم يوجد" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>ضريبة آخر وعاء سابق (جنية):</label>
-                <input type="number" id="s2_prevTax" value="" placeholder="فارغ إن لم يوجد">
+                <input type="number" id="s2_prevTax" value="" placeholder="فارغ إن لم يوجد" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
         </div>
 
@@ -732,11 +761,11 @@
             <div class="section-title">ثالثاً: الاستحقاقات (الفترة الحالية)</div>
             <div class="input-group">
                 <label>إجمالي الاستحقاقات (المرتب والبدلات والحوافز) (جنية):</label>
-                <input type="number" id="s2_gross" value="" placeholder="أدخل استحقاقات الفترة">
+                <input type="number" id="s2_gross" value="" placeholder="أدخل استحقاقات الفترة" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>مدة العمل بالفترة (أيام):</label>
-                <input type="number" id="s2_days" value="" placeholder="أدخل عدد أيام الفترة يدويآ" oninput="updatePersonalEx()">
+                <input type="number" id="s2_days" value="" placeholder="أدخل عدد أيام الفترة يدويآ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="updatePersonalEx()">
             </div>
         </div>
 
@@ -755,31 +784,31 @@
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الإعفاء الشخصي بالفترة (جنية - منسب تلقائياً وقابل للتعديل):</label>
-                <input type="number" id="s2_personalEx" value="" placeholder="0" oninput="updateDisabilityEx()">
+                <input type="number" id="s2_personalEx" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="updateDisabilityEx()">
             </div>
             <div class="input-group" id="disabilityGroup" style="margin-top: 10px;">
                 <label>إعفاء الإعاقة (جنية - بحد أقصى 833.33):</label>
-                <input type="number" id="s2_disabilityEx" value="0" placeholder="0">
+                <input type="number" id="s2_disabilityEx" value="0" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>العلاوة المنضمة (جنية - منسبة تلقائياً وقابلة للتعديل):</label>
-                <input type="number" id="s2_allowance" value="" placeholder="0">
+                <input type="number" id="s2_allowance" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>التأمينات الاجتماعية (جنية):</label>
-                <input type="number" id="s2_insurance" value="" placeholder="1670">
+                <input type="number" id="s2_insurance" value="" placeholder="1670" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>قسط مدة سابقة (جنية):</label>
-                <input type="number" id="s2_prevLoan" value="" placeholder="0">
+                <input type="number" id="s2_prevLoan" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الصناديق الخاصة (مدخل يدوي):</label>
-                <input type="number" id="s2_funds" value="" placeholder="0">
+                <input type="number" id="s2_funds" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <label>الأرباح / إعفاءات أخرى (جنية):</label>
-                <input type="number" id="s2_profits" value="" placeholder="0">
+                <input type="number" id="s2_profits" value="" placeholder="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
         </div>
 
@@ -914,9 +943,10 @@ function openSettingsModal() {
         <p style="margin-bottom:12px; font-weight:600;">اختر السيم أو العرض المطلوب:</p>
         <div class="settings-menu-grid">
             <div class="settings-menu-item" onclick="setTheme('default')">🟢 الوضع الافتراضي</div>
+            <div class="settings-menu-item" onclick="setTheme('slate-metallic')">🔘 سيم المعدن الرمادي (Slate Metallic)</div>
             <div class="settings-menu-item" onclick="setTheme('dark')">🌙 الوضع الأسود الداكن</div>
             <div class="settings-menu-item" onclick="setTheme('brown')">🟤 السيم البني</div>
-            <div class="settings-menu-item" onclick="setTheme('gray')">🔘 السيم الرمادي</div>
+            <div class="settings-menu-item" onclick="setTheme('gray')">🔘 السيم الرمادي الكلاسيكي</div>
             <div class="settings-menu-item" onclick="setTheme('old-mobile')">📱 سيم موبايل قديم</div>
             <div class="settings-menu-item" onclick="setTheme('banana')">🍌 سيم الموز</div>
             <div class="settings-menu-item" onclick="setTheme('orange')">🍊 سيم أورانج</div>
@@ -940,22 +970,22 @@ document.addEventListener('click', function(e) {
 function openTaxConstantsModal() {
     var tableHTML = `
         <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
-            <p style="margin-bottom:8px; text-align:center; font-weight:bold;">جدول شرائح وقواعد حساب ضريبة الدخل السنوية:</p>
+            <p style="margin-bottom:10px; text-align:center; font-weight:bold;">جدول شرائح وقواعد حساب ضريبة الدخل السنوية:</p>
             <div class="tax-table-container">
-                <table>
+                <table style="table-layout: auto; min-width: 750px;">
                     <thead>
                         <tr>
-                            <th>سعر الضريبة <span class="sort-circle-btn" onclick="sortModalTable(0)" title="ترتيب">↕</span></th>
-                            <th>صافي الدخل حتى 600,000 ج <span class="sort-circle-btn" onclick="sortModalTable(1)" title="ترتيب">↕</span></th>
-                            <th>صافي الدخل 600 إلى 700 ألف <span class="sort-circle-btn" onclick="sortModalTable(2)" title="ترتيب">↕</span></th>
-                            <th>صافي الدخل 700 إلى 800 ألف <span class="sort-circle-btn" onclick="sortModalTable(3)" title="ترتيب">↕</span></th>
-                            <th>صافي الدخل 800 إلى 900 ألف <span class="sort-circle-btn" onclick="sortModalTable(4)" title="ترتيب">↕</span></th>
-                            <th>صافي الدخل 900 ألف إلى 1.2 مليون <span class="sort-circle-btn" onclick="sortModalTable(5)" title="ترتيب">↕</span></th>
-                            <th>أكثر من 1,200,000 جنيه <span class="sort-circle-btn" onclick="sortModalTable(6)" title="ترتيب">↕</span></th>
+                            <th style="padding:10px 4px; font-size:0.75rem;">سعر الضريبة <span class="sort-circle-btn" onclick="sortModalTable(0)" title="ترتيب">↕</span></th>
+                            <th style="padding:10px 4px; font-size:0.75rem;">صافي الدخل حتى 600 ألف <span class="sort-circle-btn" onclick="sortModalTable(1)" title="ترتيب">↕</span></th>
+                            <th style="padding:10px 4px; font-size:0.75rem;">صافي 600 إلى 700 ألف <span class="sort-circle-btn" onclick="sortModalTable(2)" title="ترتيب">↕</span></th>
+                            <th style="padding:10px 4px; font-size:0.75rem;">صافي 700 إلى 800 ألف <span class="sort-circle-btn" onclick="sortModalTable(3)" title="ترتيب">↕</span></th>
+                            <th style="padding:10px 4px; font-size:0.75rem;">صافي 800 إلى 900 ألف <span class="sort-circle-btn" onclick="sortModalTable(4)" title="ترتيب">↕</span></th>
+                            <th style="padding:10px 4px; font-size:0.75rem;">صافي 900 ألف إلى 1.2 مليون <span class="sort-circle-btn" onclick="sortModalTable(5)" title="ترتيب">↕</span></th>
+                            <th style="padding:10px 4px; font-size:0.75rem;">أكثر من 1.2 مليون جنيه <span class="sort-circle-btn" onclick="sortModalTable(6)" title="ترتيب">↕</span></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>0.00%</strong></td><td>من 1 إلى 40,000 ج</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td><strong>0%</strong></td><td>من 1 إلى 40,000 ج</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
                         <tr><td><strong>10%</strong></td><td>أكثر من 40k إلى 55k</td><td>من 1 إلى 55,000 ج</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
                         <tr><td><strong>15%</strong></td><td>أكثر من 55k إلى 70k</td><td>أكثر من 55k إلى 70k</td><td>من 1 إلى 70,000 ج</td><td>-</td><td>-</td><td>-</td></tr>
                         <tr><td><strong>20%</strong></td><td>أكثر من 70k إلى 200k</td><td>أكثر من 70k إلى 200k</td><td>أكثر من 70k إلى 200k</td><td>من 1 إلى 200,000 ج</td><td>-</td><td>-</td></tr>
@@ -1171,6 +1201,25 @@ function saveCustomColumn() {
     alert("تم إضافة العمود وحفظه وإعادة الاحتساب بنجاح!");
 }
 
+/* دوال التكبير والتصغير الفوري لعرض الأعمدة */
+function zoomTableIn() {
+    var thList = document.querySelectorAll('#batchResultsTable th');
+    thList.forEach(function(th) {
+        var currentW = th.offsetWidth;
+        th.style.width = (currentW + 20) + 'px';
+    });
+}
+
+function zoomTableOut() {
+    var thList = document.querySelectorAll('#batchResultsTable th');
+    thList.forEach(function(th) {
+        var currentW = th.offsetWidth;
+        if (currentW > 60) {
+            th.style.width = (currentW - 20) + 'px';
+        }
+    });
+}
+
 function renderBatchTable(dataToRender) {
     var sumGross = 0;
     var sumAddition = 0;
@@ -1242,30 +1291,37 @@ function renderBatchTable(dataToRender) {
                 </div>
             ` : ''}
 
-            <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين - قابلة للتعديل وتوسيع الأعمدة):</p>
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
-                <div class="input-group" style="flex: 1; margin-bottom: 0;">
-                    <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه..." oninput="filterBatchTableResults()" autocomplete="off">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                <p style="font-weight:bold; margin-bottom:0;">نتائج حساب التعلية الشاملة (لكل العاملين):</p>
+                <div style="display: flex; gap: 6px;">
+                    <button type="button" class="modal-btn" style="padding: 5px 12px; font-size: 1rem;" onclick="zoomTableIn()" title="توسيع الأعمدة (+)">➕ توسيع الأعمدة</button>
+                    <button type="button" class="modal-btn" style="padding: 5px 12px; font-size: 1rem; background: var(--pink-btn-bg);" onclick="zoomTableOut()" title="تضييق الأعمدة (-)">➖ تضييق الأعمدة</button>
                 </div>
             </div>
-            <div class="tax-table-container">
-                <table id="batchResultsTable">
+
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                    <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="filterBatchTableResults()">
+                </div>
+            </div>
+            <div class="tax-table-container" id="batchTableContainerDiv">
+                <table id="batchResultsTable" style="min-width: 900px;">
                     <thead>
                         <tr>
-                            <th style="width: 100px;">رقم الصرف <span class="sort-circle-btn" onclick="sortBatchTable('payId')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th class="col-name-th" style="width: 130px;">اسم الموظف <span class="sort-circle-btn" onclick="sortBatchTable('name')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">الاستحقاقات <span class="sort-circle-btn" onclick="sortBatchTable('gross')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">الوعاء السابق <span class="sort-circle-btn" onclick="sortBatchTable('pBase')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">مدة العمل السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pDays')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">الضريبة السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pTax')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 110px;">التعلية <span class="sort-circle-btn" onclick="sortBatchTable('addition')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 130px;">المكافأة شاملة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('totalWithAdd')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 100px;">نسبة التعلية <span class="sort-circle-btn" onclick="sortBatchTable('ratio')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
-                            <th style="width: 130px;">الوعاء السنوي النهائي <span class="sort-circle-btn" onclick="sortBatchTable('finalBase')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 80px;">رقم الصرف <span class="sort-circle-btn" onclick="sortBatchTable('payId')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th class="col-name-th" style="width: 120px;">اسم الموظف <span class="sort-circle-btn" onclick="sortBatchTable('name')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 90px;">الاستحقاقات <span class="sort-circle-btn" onclick="sortBatchTable('gross')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 90px;">الوعاء السابق <span class="sort-circle-btn" onclick="sortBatchTable('pBase')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 80px;">مدة العمل <span class="sort-circle-btn" onclick="sortBatchTable('pDays')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 90px;">الضريبة السابقة <span class="sort-circle-btn" onclick="sortBatchTable('pTax')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 90px;">التعلية <span class="sort-circle-btn" onclick="sortBatchTable('addition')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 110px;">المكافأة شاملة <span class="sort-circle-btn" onclick="sortBatchTable('totalWithAdd')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 75px;">النسبة <span class="sort-circle-btn" onclick="sortBatchTable('ratio')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
+                            <th style="width: 100px;">الوعاء السنوي <span class="sort-circle-btn" onclick="sortBatchTable('finalBase')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
     `;
     
     for (var c = 0; c < customColumns.length; c++) {
-        tableHTML += `<th style="width: 130px;">${customColumns[c].title} <span class="sort-circle-btn" onclick="sortBatchTable('custom_${c}')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>`;
+        tableHTML += `<th style="width: 110px;">${customColumns[c].title} <span class="sort-circle-btn" onclick="sortBatchTable('custom_${c}')" title="ترتيب">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>`;
     }
     
     tableHTML += `
@@ -1299,12 +1355,12 @@ function renderBatchTable(dataToRender) {
         
         tableHTML += `
             <tr data-search="${normalizeArabic(payId + ' ' + name)}" data-index="${i}">
-                <td><input type="text" class="batch-edit-payid" value="${payId}" onchange="updateBatchField(${i}, 'payId', this.value)"></td>
-                <td style="text-align:right;"><input type="text" class="batch-edit-name" value="${name}" onchange="updateBatchField(${i}, 'name', this.value)" style="text-align:right;"></td>
-                <td><input type="number" class="batch-edit-gross" value="${gross}" onchange="updateBatchField(${i}, 'gross', this.value)"></td>
-                <td><input type="number" class="batch-edit-pbase" value="${pBase}" onchange="updateBatchField(${i}, 'pBase', this.value)"></td>
-                <td><input type="number" class="batch-edit-pdays" value="${pDays}" onchange="updateBatchField(${i}, 'pDays', this.value)"></td>
-                <td><input type="number" class="batch-edit-ptax" value="${pTax}" onchange="updateBatchField(${i}, 'ptax', this.value)"></td>
+                <td><input type="text" class="batch-edit-payid" value="${payId}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateBatchField(${i}, 'payId', this.value)"></td>
+                <td style="text-align:right;"><input type="text" class="batch-edit-name" value="${name}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateBatchField(${i}, 'name', this.value)" style="text-align:right;"></td>
+                <td><input type="number" class="batch-edit-gross" value="${gross}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateBatchField(${i}, 'gross', this.value)"></td>
+                <td><input type="number" class="batch-edit-pbase" value="${pBase}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateBatchField(${i}, 'pBase', this.value)"></td>
+                <td><input type="number" class="batch-edit-pdays" value="${pDays}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateBatchField(${i}, 'pDays', this.value)"></td>
+                <td><input type="number" class="batch-edit-ptax" value="${pTax}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="updateBatchField(${i}, 'ptax', this.value)"></td>
                 <td style="color:var(--blue-primary); font-weight:bold;">${add.toFixed(2)}</td>
                 <td style="font-weight:bold;">${totalWithAdd.toFixed(2)}</td>
                 <td><span style="${ratioStyle}" ${ratioOnClick} title="${ratioPercent > 40 ? 'اضغط لمعرفة سبب ارتفاع النسبة!' : ''}">${ratioPercent.toFixed(2)}%</span></td>
@@ -1430,6 +1486,13 @@ function sortBatchTable(columnKey) {
     if (!sortDirections[columnKey]) { sortDirections[columnKey] = 'asc'; } else { sortDirections[columnKey] = sortDirections[columnKey] === 'asc' ? 'desc' : 'asc'; }
     var dir = sortDirections[columnKey];
 
+    // حفظ مواقع التمرير والنافذة الحالية لمنع القفز لأعلى الصفحة
+    var modalContentArea = document.getElementById('modalContentArea');
+    var modalScrollTop = modalContentArea ? modalContentArea.scrollTop : 0;
+    var tableContainer = document.getElementById('batchTableContainerDiv');
+    var tableScrollLeft = tableContainer ? tableContainer.scrollLeft : 0;
+    var tableScrollTop = tableContainer ? tableContainer.scrollTop : 0;
+
     batchEmployeesData.sort(function(a, b) {
         var valA, valB;
         if (columnKey === 'payId') {
@@ -1474,7 +1537,15 @@ function sortBatchTable(columnKey) {
     });
 
     renderBatchTable(batchEmployeesData);
-    document.getElementById('batchSearchInput').focus();
+
+    // استعادة مواقع التمرير بدقة ليفضل واقفاً مكان الفرز تماماً دون تحرك
+    var newModalArea = document.getElementById('modalContentArea');
+    if (newModalArea) newModalArea.scrollTop = modalScrollTop;
+    var newTableContainer = document.getElementById('batchTableContainerDiv');
+    if (newTableContainer) {
+        newTableContainer.scrollLeft = tableScrollLeft;
+        newTableContainer.scrollTop = tableScrollTop;
+    }
 }
 
 try {
@@ -1527,7 +1598,8 @@ function updateContactLinks(systemNum) {
         if (waNum.startsWith('0')) {
             waNum = '2' + waNum;
         }
-        waBtn.href = "https://wa.me/" + waNum;
+        // رابط واتساب المباشر الحقيقي
+        waBtn.href = "https://api.whatsapp.com/send?phone=" + waNum;
         waBtn.style.display = "flex";
     } else {
         callBtn.style.display = "none";
@@ -1585,17 +1657,14 @@ function runBatchCalculation() {
     for (var i = 0; i < batchEmployeesData.length; i++) {
         var emp = batchEmployeesData[i];
         
-        // 1. بيانات الوعاء والضريبة السابقة
         var prevBase = parseFloat(getVal(emp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase'])) || 0;
         var prevWorkDays = parseFloat(getVal(emp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'مدة العمل', 'PrevWorkDays', 'أيام'])) || 0;
         var prevTax = parseFloat(getVal(emp, ['ضريبة آخر وعاء سابق', 'ضريبة سابقة', 'PrevTax'])) || 0;
         
-        // 2. الاستحقاقات ومدة العمل للفترة الحالية (مفصولة تماماً عن مدة العمل السابقة)
         var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
         var rawDaysVal = getVal(emp, ['مدة العمل بالفترة', 'أيام الفترة', 'Days']);
         var workDays = (rawDaysVal !== "" && !isNaN(parseFloat(rawDaysVal))) ? parseFloat(rawDaysVal) : 0;
 
-        // 3. الإعفاءات للفترة الحالية (بدون افتراض تلقائي)
         var rawPersonalEx = getVal(emp, ['الإعفاء الشخصي', 'اعفاء شخصي', 'PersonalEx']);
         var personalEx = (rawPersonalEx !== "" && !isNaN(parseFloat(rawPersonalEx))) ? parseFloat(rawPersonalEx) : 0;
         if (personalEx < 0) personalEx = 0;
@@ -1618,7 +1687,6 @@ function runBatchCalculation() {
         var totalExemptionsPeriod = otherExemptionsBeforeFunds + funds;
         var periodNet = Math.max(0, gross - totalExemptionsPeriod);
 
-        // 4. الحساب المطابق تماماً للحسبة الفردية
         var prevPeriodNet = (prevBase / 360) * prevWorkDays;
         var combinedDays = workDays + prevWorkDays;
 
@@ -1781,7 +1849,7 @@ function filterCustomDropdown(systemNum) {
 
                 dropdown.appendChild(div);
                 matches++;
-                if (matches >= 40) break;
+                if (matches >= 30) break;
             }
         }
     }
@@ -1825,7 +1893,7 @@ function filterPayIdDropdown(systemNum) {
 
                 dropdown.appendChild(div);
                 matches++;
-                if (matches >= 40) break;
+                if (matches >= 30) break;
             }
         }
     }
@@ -1869,7 +1937,7 @@ function filterNatIdDropdown(systemNum) {
 
                 dropdown.appendChild(div);
                 matches++;
-                if (matches >= 40) break;
+                if (matches >= 30) break;
             }
         }
     }
@@ -1914,7 +1982,7 @@ function filterPhoneDropdown(systemNum) {
 
                 dropdown.appendChild(div);
                 matches++;
-                if (matches >= 40) break;
+                if (matches >= 30) break;
             }
         }
     }
