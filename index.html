@@ -471,8 +471,8 @@
             display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 15px;
         }
         .modal-content {
-            background: var(--card-bg); width: 100%; max-width: 980px; border-radius: 16px; padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid var(--gray-border); max-height: 90vh; overflow-y: auto; color: var(--text-main);
+            background: var(--card-bg); width: 100%; max-width: 1300px; border-radius: 16px; padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); border: 1px solid var(--gray-border); max-height: 92vh; overflow-y: auto; color: var(--text-main);
         }
         .modal-header {
             display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gray-border); padding-bottom: 12px; margin-bottom: 15px;
@@ -945,13 +945,13 @@ function openTaxConstantsModal() {
                 <table>
                     <thead>
                         <tr>
-                            <th>سعر الضريبة</th>
-                            <th>صافي الدخل حتى 600,000 ج</th>
-                            <th>صافي الدخل 600 إلى 700 ألف</th>
-                            <th>صافي الدخل 700 إلى 800 ألف</th>
-                            <th>صافي الدخل 800 إلى 900 ألف</th>
-                            <th>صافي الدخل 900 ألف إلى 1.2 مليون</th>
-                            <th>أكثر من 1,200,000 جنيه</th>
+                            <th>سعر الضريبة <span class="sort-circle-btn" onclick="sortModalTable(0)" title="ترتيب">↕</span></th>
+                            <th>صافي الدخل حتى 600,000 ج <span class="sort-circle-btn" onclick="sortModalTable(1)" title="ترتيب">↕</span></th>
+                            <th>صافي الدخل 600 إلى 700 ألف <span class="sort-circle-btn" onclick="sortModalTable(2)" title="ترتيب">↕</span></th>
+                            <th>صافي الدخل 700 إلى 800 ألف <span class="sort-circle-btn" onclick="sortModalTable(3)" title="ترتيب">↕</span></th>
+                            <th>صافي الدخل 800 إلى 900 ألف <span class="sort-circle-btn" onclick="sortModalTable(4)" title="ترتيب">↕</span></th>
+                            <th>صافي الدخل 900 ألف إلى 1.2 مليون <span class="sort-circle-btn" onclick="sortModalTable(5)" title="ترتيب">↕</span></th>
+                            <th>أكثر من 1,200,000 جنيه <span class="sort-circle-btn" onclick="sortModalTable(6)" title="ترتيب">↕</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -984,10 +984,10 @@ function openTaxConstantExplanationModal() {
                 <table>
                     <thead>
                         <tr>
-                            <th>نطاق الوعاء السنوي</th>
-                            <th>الشريحة الحدية</th>
-                            <th>الثابت الضريبي المعتمد</th>
-                            <th>كيف جاء الثابت الضريبي تفصيلياً (الحسبة والمنشا)</th>
+                            <th>نطاق الوعاء السنوي <span class="sort-circle-btn" onclick="sortModalTable(0)" title="ترتيب">↕</span></th>
+                            <th>الشريحة الحدية <span class="sort-circle-btn" onclick="sortModalTable(1)" title="ترتيب">↕</span></th>
+                            <th>الثابت الضريبي المعتمد <span class="sort-circle-btn" onclick="sortModalTable(2)" title="ترتيب">↕</span></th>
+                            <th>كيف جاء الثابت الضريبي تفصيلياً (الحسبة والمنشا) <span class="sort-circle-btn" onclick="sortModalTable(3)" title="ترتيب">↕</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1064,6 +1064,21 @@ function openTaxConstantExplanationModal() {
     `;
     document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ جدول الثوابت والشرح كصورة كاملة</button>';
     showModal("شرح الثوابت الضريبية وتفصيلها", explanationHTML);
+}
+
+function sortModalTable(colIndex) {
+    var table = document.querySelector('#captureTaxTableArea table');
+    if (!table) return;
+    var tbody = table.querySelector('tbody');
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort(function(a, b) {
+        var valA = a.cells[colIndex].innerText.trim();
+        var valB = b.cells[colIndex].innerText.trim();
+        return valA.localeCompare(valB, 'ar');
+    });
+    
+    rows.forEach(function(row) { tbody.appendChild(row); });
 }
 
 /* حفظ الصورة بالحجم الكامل لضمان عدم نقص أي بيانات */
@@ -1159,8 +1174,80 @@ function saveCustomColumn() {
 }
 
 function renderBatchTable(dataToRender) {
+    // حساب المجاميع الكلية المجمعة تلقائياً
+    var sumGross = 0;
+    var sumAddition = 0;
+    var sumTotalWithAdd = 0;
+    var discrepancyList = [];
+
+    for (var i = 0; i < dataToRender.length; i++) {
+        var emp = dataToRender[i];
+        var payId = getVal(emp, ['رقم الصرف', 'رقم_الصرف', 'PayID']) || '-';
+        var name = getVal(emp, ['اسم الموظف', 'الاسم', 'Name']) || '-';
+        var gross = parseFloat(getVal(emp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة'])) || 0;
+        var add = parseFloat(emp['التعلية']) || 0;
+        var totalWithAdd = parseFloat(emp['المكافأة شاملة التعلية']) || gross;
+
+        sumGross += gross;
+        sumAddition += add;
+        sumTotalWithAdd += totalWithAdd;
+
+        // التحقق من التطابق (المكافأة شاملة التعلية تساوي الاستحقاقات + التعلية)
+        var expectedTotal = gross + add;
+        var diff = Math.abs(totalWithAdd - expectedTotal);
+        if (diff > 0.05) {
+            var diffVal = totalWithAdd - expectedTotal;
+            discrepancyList.push({
+                payId: payId,
+                name: name,
+                diff: diffVal,
+                reason: "فارق بين المكافأة شاملة التعلية (" + totalWithAdd.toFixed(2) + ") ومجموع (الاستحقاقات " + gross.toFixed(2) + " + التعلية " + add.toFixed(2) + ")"
+            });
+        }
+    }
+
+    var isOverallMatched = Math.abs(sumTotalWithAdd - (sumGross + sumAddition)) <= 0.05;
+    var overallDiff = sumTotalWithAdd - (sumGross + sumAddition);
+
     var tableHTML = `
         <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
+            <!-- القسم العلوي المجمع للمجاميع وحالة التطابق -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:15px; background:var(--gray-light); padding:15px; border-radius:12px; border:1px solid var(--gray-border);">
+                <div style="background:var(--card-bg); padding:10px; border-radius:8px; border:1px solid var(--gray-border); text-align:center;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">إجمالي الاستحقاقات</div>
+                    <div style="font-size:1.1rem; font-weight:800; color:var(--blue-primary); margin-top:4px;">${sumGross.toFixed(2)} ج.م</div>
+                </div>
+                <div style="background:var(--card-bg); padding:10px; border-radius:8px; border:1px solid var(--gray-border); text-align:center;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">إجمالي التعلية</div>
+                    <div style="font-size:1.1rem; font-weight:800; color:var(--blue-primary); margin-top:4px;">${sumAddition.toFixed(2)} ج.م</div>
+                </div>
+                <div style="background:var(--card-bg); padding:10px; border-radius:8px; border:1px solid var(--gray-border); text-align:center;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">إجمالي المكافأة شاملة التعلية</div>
+                    <div style="font-size:1.1rem; font-weight:800; color:var(--blue-primary); margin-top:4px;">${sumTotalWithAdd.toFixed(2)} ج.م</div>
+                </div>
+                <div style="background: ${isOverallMatched ? '#dcfce7' : '#fee2e2'}; padding:10px; border-radius:8px; border:1px solid ${isOverallMatched ? '#86efac' : '#fca5a5'}; text-align:center;">
+                    <div style="font-size:0.8rem; font-weight:700; color:${isOverallMatched ? '#166534' : '#991b1b'};">حالة التطابق العامة</div>
+                    <div style="font-size:1.05rem; font-weight:800; color:${isOverallMatched ? '#166534' : '#991b1b'}; margin-top:4px;">
+                        ${isOverallMatched ? 'مطابق ✅' : 'غير مطابق ❌ (الفرق: ' + overallDiff.toFixed(2) + ')'}
+                    </div>
+                </div>
+            </div>
+
+            <!-- قائمة الفروق المنفردة إن وجدت -->
+            ${discrepancyList.length > 0 ? `
+                <div style="background:#fef2f2; border:1px solid #f87171; border-radius:10px; padding:12px; margin-bottom:15px;">
+                    <div style="font-weight:bold; color:#991b1b; margin-bottom:8px; font-size:0.95rem;">⚠️ قائمة الموظفين غير المطابقين (كل رقم صرف أو اسم مع الفرق وسببه):</div>
+                    <div style="display:flex; flex-direction:column; gap:6px; max-height:140px; overflow-y:auto;">
+                        ${discrepancyList.map(item => `
+                            <div style="display:flex; justify-content:space-between; align-items:center; background:#ffffff; padding:6px 10px; border-radius:6px; font-size:0.85rem; border:1px solid #fca5a5;">
+                                <span><strong>رقم الصرف:</strong> ${item.payId} | <strong>الاسم:</strong> ${item.name}</span>
+                                <span style="color:#991b1b; font-weight:bold;">الفرق: ${item.diff > 0 ? '+' : ''}${item.diff.toFixed(2)} ج.م (${item.reason})</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
             <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين - قابلة للتعديل وتوسيع الأعمدة):</p>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
                 <div class="input-group" style="flex: 1; margin-bottom: 0;">
@@ -1183,9 +1270,9 @@ function renderBatchTable(dataToRender) {
                             <th style="width: 130px;">الوعاء السنوي النهائي <span class="sort-circle-btn" onclick="sortBatchTable('finalBase')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>
     `;
     
-    // إضافة رؤوس الأعمدة المخصصة إن وجدت
+    // إضافة رؤوس الأعمدة المخصصة إن وجدت مع سهم الترتيب التلقائي
     for (var c = 0; c < customColumns.length; c++) {
-        tableHTML += `<th style="width: 130px;">${customColumns[c].title}<div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>`;
+        tableHTML += `<th style="width: 130px;">${customColumns[c].title} <span class="sort-circle-btn" onclick="sortBatchTable('custom_${c}')" title="ترتيب تناسقي">↕</span><div class="col-resizer" onmousedown="initColResize(event, this)"></div></th>`;
     }
     
     tableHTML += `
@@ -1231,7 +1318,7 @@ function renderBatchTable(dataToRender) {
                 <td>${finalBase.toFixed(2)}</td>
         `;
         
-        // جلب قيم الأعمدة المخصصة بناءً على مصدرها (سواء من أعمدة الملف أو الحسابات الداخلية)
+        // جلب قيم الأعمدة المخصصة بناءً على مصدرها
         for (var c = 0; c < customColumns.length; c++) {
             var src = customColumns[c].source;
             var valCol = 0;
@@ -1386,6 +1473,11 @@ function sortBatchTable(columnKey) {
         } else if (columnKey === 'finalBase') {
             valA = parseFloat(a['الوعاء السنوي النهائي']) || 0;
             valB = parseFloat(b['الوعاء السنوي النهائي']) || 0;
+        } else if (columnKey.startsWith('custom_')) {
+            var cIndex = parseInt(columnKey.replace('custom_', ''));
+            var src = customColumns[cIndex].source;
+            valA = src.startsWith('calc_') ? (a['custom_' + src] || 0) : (parseFloat(getVal(a, [src])) || 0);
+            valB = src.startsWith('calc_') ? (b['custom_' + src] || 0) : (parseFloat(getVal(b, [src])) || 0);
         }
         return dir === 'asc' ? valA - valB : valB - valA;
     });
