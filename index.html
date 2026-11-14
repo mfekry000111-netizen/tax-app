@@ -1036,8 +1036,15 @@ function renderBatchTable(dataToRender) {
     var tableHTML = `
         <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
             <p style="margin-bottom:8px; font-weight:bold;">نتائج حساب التعلية الشاملة (لكل العاملين - قابلة للتعديل المباشر):</p>
-            <div class="input-group" style="margin-bottom: 12px;">
-                <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه (بدون ترتيب)..." oninput="filterBatchTableResults()" autocomplete="off">
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                    <input type="text" id="batchSearchInput" placeholder="🔍 ابحث برقم الصرف أو اسم الموظف أو أي جزء منه (بدون ترتيب)..." oninput="filterBatchTableResults()" autocomplete="off">
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; background: var(--gray-light); padding: 5px 10px; border-radius: 10px; border: 1px solid var(--gray-border);">
+                    <span style="font-size: 0.85rem; font-weight: bold;">↔ توسيع الأعمدة:</span>
+                    <button type="button" onclick="adjustBatchTableWidth(30)" style="padding: 3px 8px; font-weight: bold; background: var(--blue-primary); color: white; border: none; border-radius: 6px; cursor: pointer;">+</button>
+                    <button type="button" onclick="adjustBatchTableWidth(-30)" style="padding: 3px 8px; font-weight: bold; background: var(--pink-btn-bg); color: white; border: none; border-radius: 6px; cursor: pointer;">-</button>
+                </div>
             </div>
             <div class="tax-table-container">
                 <table id="batchResultsTable">
@@ -1109,6 +1116,17 @@ function renderBatchTable(dataToRender) {
         <button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كاملاً كصورة</button>
     `;
     showModal("عرض وتعديل نتائج حساب التعلية الشاملة", tableHTML);
+}
+
+let currentTableExtraWidth = 0;
+function adjustBatchTableWidth(amount) {
+    currentTableExtraWidth += amount;
+    if (currentTableExtraWidth < 0) currentTableExtraWidth = 0;
+    var inputs = document.querySelectorAll('#batchResultsTable input');
+    inputs.forEach(function(inp) {
+        var baseMin = inp.classList.contains('batch-edit-name') ? 200 : 110;
+        inp.style.minWidth = (baseMin + currentTableExtraWidth) + 'px';
+    });
 }
 
 function updateBatchField(index, fieldKey, val) {
