@@ -294,11 +294,20 @@
 
         .section-title { color: var(--text-main); font-weight: 700; font-size: 1.05rem; margin-bottom: 0; }
 
+        .btn-group-flex {
+            display: flex; gap: 6px; align-items: center;
+        }
         .small-reset-btn {
             background: var(--pink-btn-bg); color: #ffffff; border: none; border-radius: 8px;
             padding: 5px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
         }
         .small-reset-btn:hover { background: var(--pink-btn-hover); transform: translateY(-1px); }
+
+        .small-save-btn {
+            background: #16a34a; color: #ffffff; border: none; border-radius: 8px;
+            padding: 5px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+        }
+        .small-save-btn:hover { background: #15803d; transform: translateY(-1px); }
         
         .input-group { margin-bottom: 12px; position: relative; }
         .input-group:last-child { margin-bottom: 0; }
@@ -475,7 +484,10 @@
         <div class="section-box">
             <div class="section-header-flex">
                 <div class="section-title">أولاً: بيانات العامل</div>
-                <button type="button" class="small-reset-btn" onclick="resetSystem(1)">تفريغ البيانات</button>
+                <div class="btn-group-flex">
+                    <button type="button" class="small-save-btn" onclick="saveCurrentEmployeeData(1)" title="حفظ التعديلات الحالية">حفظ</button>
+                    <button type="button" class="small-reset-btn" onclick="resetSystem(1)">تفريغ البيانات</button>
+                </div>
             </div>
             <div class="input-group">
                 <label>اسم الموظف أو رقم الصرف:</label>
@@ -603,7 +615,10 @@
         <div class="section-box">
             <div class="section-header-flex">
                 <div class="section-title">أولاً: بيانات العامل</div>
-                <button type="button" class="small-reset-btn" onclick="resetSystem(2)">تفريغ البيانات</button>
+                <div class="btn-group-flex">
+                    <button type="button" class="small-save-btn" onclick="saveCurrentEmployeeData(2)" title="حفظ التعديلات الحالية">حفظ</button>
+                    <button type="button" class="small-reset-btn" onclick="resetSystem(2)">تفريغ البيانات</button>
+                </div>
             </div>
             <div class="input-group">
                 <label>اسم الموظف أو رقم الصرف:</label>
@@ -809,6 +824,7 @@ let globalEmployeesData = [];
 let currentRawAllowance = 0;
 let s2_employeeSelected = false;
 let batchEmployeesData = [];
+let currentSelectedEmpIndex = -1;
 
 try {
     let savedTheme = localStorage.getItem('appThemePreference');
@@ -1047,6 +1063,16 @@ function renderBatchTable(dataToRender) {
         var ratio = parseFloat(emp['نسبة التعلية']) || 0;
         var finalBase = parseFloat(emp['الوعاء السنوي النهائي']) || 0;
         
+        var ratioPercent = ratio * 100;
+        var ratioStyle = "";
+        var ratioOnClick = "";
+        if (ratioPercent > 40) {
+            ratioStyle = "color:#dc2626; font-weight:bold; cursor:pointer;";
+            ratioOnClick = `onclick="explainHighRatio('${name}', ${ratioPercent.toFixed(2)}, ${gross}, ${pBase}, ${pDays}, ${add})"`;
+        } else {
+            ratioStyle = "font-weight:bold; color:#059669;";
+        }
+        
         tableHTML += `
             <tr data-search="${normalizeArabic(payId + ' ' + name)}">
                 <td>${payId}</td>
@@ -1057,7 +1083,7 @@ function renderBatchTable(dataToRender) {
                 <td>${pTax.toFixed(2)}</td>
                 <td style="color:var(--blue-primary); font-weight:bold;">${add.toFixed(2)}</td>
                 <td style="font-weight:bold;">${totalWithAdd.toFixed(2)}</td>
-                <td style="font-weight:bold; color:#059669;">${(ratio * 100).toFixed(2)}%</td>
+                <td><span style="${ratioStyle}" ${ratioOnClick} title="${ratioPercent > 40 ? 'اضغط لمعرفة سبب ارتفاع النسبة!' : ''}">${ratioPercent.toFixed(2)}%</span></td>
                 <td>${finalBase.toFixed(2)}</td>
             </tr>
         `;
@@ -1071,6 +1097,22 @@ function renderBatchTable(dataToRender) {
     `;
     document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ الجدول كاملاً كصورة</button>';
     showModal("عرض نتائج حساب التعلية الشاملة والبيانات الكاملة", tableHTML);
+}
+
+function explainHighRatio(empName, ratioVal, grossVal, pBaseVal, pDaysVal, addVal) {
+    var explanationHTML = `
+        <div style="background:var(--card-bg); padding:15px; border-radius:10px; line-height:1.7;">
+            <p style="font-weight:bold; color:#dc2626; margin-bottom:10px;">⚠️ سبب تجاوز نسبة التعلية لـ 40% للموظف: ${empName}</p>
+            <p style="margin-bottom:8px;"><strong>نسبة التعلية الحالية:</strong> ${ratioVal}% (إجمالي التعلية: ${addVal.getDecimal ? addVal : addVal.toFixed(2)} ج.م من إجمالي مكافأة ${grossVal} ج.م)</p>
+            <p style="margin-bottom:8px;"><strong>الأسباب الفنية الضريبية لارتفاع النسبة:</strong></p>
+            <ul style="margin-right:20px; font-size:0.9rem; display:flex; flex-direction:column; gap:6px;">
+                <li><strong>تراكم الوعاء السنوي السابق والحدود الحدية:</strong> الوعاء السابق (${pBaseVal} ج.م) المجمع على مدار (${pDaysVal} يوم) أدى إلى وصول إجمالي الوعاء السنوي المستهدف (` + (pBaseVal + (grossVal * 360 / 30)) + ` ج.م تقريباً) إلى شرائح ضريبية حدية عليا (مثل 22.5% أو 25% أو 27.5%).</li>
+                <li><strong>طبيعة نظام التعلية الجبرية (Gross-up):</strong> لكي يتم صافي صرف قيمة المكافأة دون أن تتحمل الشركة أو ينقص صافي المبلغ، يتم حساب الضريبة التصاعدية على إجمالي الوعاء المضاف، مما يجعل ضريبة الشريحة العليا تطبق بالكامل على قيمة المكافأة الكبيرة نسبةً إلى إجمالي الدخل.</li>
+                <li><strong>تناسب المدة الزمنية:</strong> قصر عدد أيام الفترة الحالية مقارنة بالمكافأة يؤدي إلى تعظيم الأثر السنوي لمعامل المدة ($k$).</li>
+            </ul>
+        </div>
+    `;
+    showModal("تفسير سبب ارتفاع نسبة التعلية", explanationHTML);
 }
 
 function filterBatchTableResults() {
@@ -1144,14 +1186,16 @@ try {
     globalEmployeesData = [];
 }
 
+/* تطبيع شامل للبحث يدعم الهمزات، الهاء والتاء المربوطة، والمسافات المركبة وترتيب الكلمات بأي صورة */
 function normalizeArabic(text) {
     if (text === undefined || text === null) return "";
     return text
         .toString()
-        .replace(/[\u064B-\u0652]/g, "")
-        .replace(/[أإآا]/g, "ا")
-        .replace(/ى/g, "ي")
-        .replace(/ة/g, "ه")
+        .replace(/[\u064B-\u0652]/g, "") // إزالة التشكيل
+        .replace(/[أإآاٱ]/g, "ا")        // توحيد همزات الألف
+        .replace(/[ؤوئى]/g, "ي")         // توحيد الياء والهمزة على واو
+        .replace(/ة/g, "ه")             // توحيد التاء المربوطة والهاء
+        .replace(/\s+/g, " ")           // ضغط المسافات المتعددة لمسافة واحدة
         .trim()
         .toLowerCase();
 }
@@ -1365,16 +1409,13 @@ function filterCustomDropdown(systemNum) {
         
         var isPayIdMatch = normPayId.includes(normalizeArabic(rawInput));
 
+        // مطابقة مرنة تدعم الاسم الأول مع الرابع أو أي كلمات متفرقة وبغض النظر عن الترتيب
         var allWordsFound = true;
         for (var w = 0; w < queryWords.length; w++) {
             var word = queryWords[w];
             if (!normName.includes(word)) {
-                var compactWord = word.replace(/\s+/g, '');
-                var compactName = normName.replace(/\s+/g, '');
-                if (!compactName.includes(compactWord)) {
-                    allWordsFound = false;
-                    break;
-                }
+                allWordsFound = false;
+                break;
             }
         }
 
@@ -1384,12 +1425,13 @@ function filterCustomDropdown(systemNum) {
                 div.className = 'dropdown-item';
                 div.innerText = rawName + (rawPayId ? " (رقم الصرف: " + rawPayId + ")" : "");
                 
-                div.onclick = (function(empObj, sys) {
+                div.onclick = (function(empObj, sys, empIdx) {
                     return function() {
+                        currentSelectedEmpIndex = empIdx;
                         fillEmployeeData(empObj, sys);
                         closeAllDropdowns();
                     };
-                })(emp, systemNum);
+                })(emp, systemNum, i);
 
                 dropdown.appendChild(div);
                 matches++;
@@ -1427,12 +1469,13 @@ function filterPayIdDropdown(systemNum) {
                 div.className = 'dropdown-item';
                 div.innerText = "رقم الصرف: " + rawPayId + (rawName ? " (" + rawName + ")" : "");
                 
-                div.onclick = (function(empObj, sys) {
+                div.onclick = (function(empObj, sys, empIdx) {
                     return function() {
+                        currentSelectedEmpIndex = empIdx;
                         fillEmployeeData(empObj, sys);
                         closeAllDropdowns();
                     };
-                })(emp, systemNum);
+                })(emp, systemNum, i);
 
                 dropdown.appendChild(div);
                 matches++;
@@ -1470,12 +1513,13 @@ function filterNatIdDropdown(systemNum) {
                 div.className = 'dropdown-item';
                 div.innerText = "الرقم القومي: " + rawNatId + (rawName ? " (" + rawName + ")" : "");
                 
-                div.onclick = (function(empObj, sys) {
+                div.onclick = (function(empObj, sys, empIdx) {
                     return function() {
+                        currentSelectedEmpIndex = empIdx;
                         fillEmployeeData(empObj, sys);
                         closeAllDropdowns();
                     };
-                })(emp, systemNum);
+                })(emp, systemNum, i);
 
                 dropdown.appendChild(div);
                 matches++;
@@ -1514,12 +1558,13 @@ function filterPhoneDropdown(systemNum) {
                 div.className = 'dropdown-item';
                 div.innerText = "التليفون: " + empCleanPhone + (rawName ? " (" + rawName + ")" : "");
                 
-                div.onclick = (function(empObj, sys) {
+                div.onclick = (function(empObj, sys, empIdx) {
                     return function() {
+                        currentSelectedEmpIndex = empIdx;
                         fillEmployeeData(empObj, sys);
                         closeAllDropdowns();
                     };
-                })(emp, systemNum);
+                })(emp, systemNum, i);
 
                 dropdown.appendChild(div);
                 matches++;
@@ -1548,14 +1593,14 @@ function fillEmployeeData(matchedEmp, systemNum) {
     var normTr = normalizeArabic(taxTrVal);
     var isDisability = normTr.includes('ذوي إعاقة') || normTr.includes('ذوي') || normTr.includes('ذوى إعاقة') || normTr.includes('زوي اعاقه') || normTr.includes('ذوي اعاقه');
 
-    var grossVal = getVal(matchedEmp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross']);
+    var grossVal = getVal(matchedEmp, ['إجمالي الاستحقاقات', 'الاستحقاقات', 'Gross', 'المكافأة']);
     var allowVal = parseFloat(getVal(matchedEmp, ['العلاوة المنضمة', 'علاوة', 'Allowance'])) || 0;
     var insVal = getVal(matchedEmp, ['التأمينات الاجتماعية', 'التأمينات', 'Insurance']);
     var loanVal = getVal(matchedEmp, ['قسط مدة سابقة', 'قسط', 'Loan']);
     var fundVal = getVal(matchedEmp, ['الصناديق الخاصة', 'الصناديق', 'Funds']);
     var profitVal = getVal(matchedEmp, ['الأرباح', 'أرباح', 'Profits']);
     var pBase = getVal(matchedEmp, ['آخر وعاء سابق', 'وعاء سابق', 'PrevBase']);
-    var pDays = getVal(matchedEmp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'PrevDays']);
+    var pDays = getVal(matchedEmp, ['مدة العمل للوعاء السابق', 'أيام الوعاء السابق', 'PrevDays', 'مدة العمل']);
     var pTax = getVal(matchedEmp, ['ضريبة الوعاء السابق', 'ضريبة سابقة', 'PrevTax']);
 
     var prefix = systemNum === 1 ? 's1_' : 's2_';
@@ -1597,6 +1642,43 @@ function fillEmployeeData(matchedEmp, systemNum) {
         
         updatePersonalEx();
     }
+}
+
+/* حفظ التعديلات اليدوية الحالية للموظف وتحديث البيانات */
+function saveCurrentEmployeeData(systemNum) {
+    if (currentSelectedEmpIndex < 0 || !globalEmployeesData[currentSelectedEmpIndex]) {
+        alert("برجاء اختيار موظف أولاً من قائمة البحث لتحديث بياناته.");
+        return;
+    }
+
+    var prefix = systemNum === 1 ? 's1_' : 's2_';
+    var emp = globalEmployeesData[currentSelectedEmpIndex];
+
+    emp['اسم الموظف'] = document.getElementById(prefix + 'empName').value;
+    emp['رقم الصرف'] = document.getElementById(prefix + 'payId').value;
+    emp['الرقم القومي'] = document.getElementById(prefix + 'natId').value;
+    emp['رقم التليفون'] = document.getElementById(prefix + 'phone').value;
+
+    if (systemNum === 1) {
+        emp['إجمالي الاستحقاقات'] = document.getElementById('grossSalary').value;
+        emp['العلاوة المنضمة'] = document.getElementById('allowance').value;
+        emp['التأمينات الاجتماعية'] = document.getElementById('insurance').value;
+        emp['قسط مدة سابقة'] = document.getElementById('prevLoan').value;
+        emp['الصناديق الخاصة'] = document.getElementById('funds').value;
+        emp['الأرباح'] = document.getElementById('otherExemption').value;
+    } else {
+        emp['إجمالي الاستحقاقات'] = document.getElementById('s2_gross').value;
+        emp['التأمينات الاجتماعية'] = document.getElementById('s2_insurance').value;
+        emp['قسط مدة سابقة'] = document.getElementById('s2_prevLoan').value;
+        emp['الصناديق الخاصة'] = document.getElementById('s2_funds').value;
+        emp['الأرباح'] = document.getElementById('s2_profits').value;
+        emp['آخر وعاء سابق'] = document.getElementById('s2_prevBase').value;
+        emp['مدة العمل للوعاء السابق'] = document.getElementById('s2_prevWorkDays').value;
+        emp['ضريبة آخر وعاء سابق'] = document.getElementById('s2_prevTax').value;
+    }
+
+    localStorage.setItem('persistentEmployees2274', JSON.stringify(globalEmployeesData));
+    alert("تم حفظ التعديلات وحفظها في الذاكرة الدائمة بنجاح!");
 }
 
 function switchSystem(sysNum) {
@@ -1671,6 +1753,7 @@ function updateDisabilityEx() {
 }
 
 function resetSystem(sysNum) {
+    currentSelectedEmpIndex = -1;
     if (sysNum === 1) {
         document.getElementById('s1_empName').value = "";
         document.getElementById('s1_payId').value = "";
