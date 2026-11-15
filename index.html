@@ -23,6 +23,26 @@
             --pink-btn-hover: #e11d48;
         }
 
+        /* سيم غابة الزهور والسيارة الصفراء المستوحى من الصورة */
+        body.theme-forest-car {
+            --bg-gradient: linear-gradient(135deg, #1b382b 0%, #2e5a42 50%, #14281e 100%);
+            --card-bg: #f4f8f4;
+            --text-main: #192e22;
+            --text-muted: #4e6b57;
+            --blue-primary: #2e7d52;
+            --blue-light: #e2f0e6;
+            --blue-border: #a8d5b8;
+            --gray-light: #eaf3ed;
+            --gray-border: #c4e1cc;
+            --pink-btn-bg: #d94f6f;
+            --pink-btn-hover: #be3b59;
+        }
+        body.theme-forest-car .app-card { border: 2px solid #a8d5b8; box-shadow: 0 25px 50px -12px rgba(15, 45, 25, 0.6); }
+        body.theme-forest-car input, body.theme-forest-car select { background: #ffffff; border-color: #a8d5b8; color: #192e22; }
+        body.theme-forest-car input:focus, body.theme-forest-car select:focus { border-color: #2e7d52; box-shadow: 0 0 10px rgba(46, 125, 82, 0.3); }
+        body.theme-forest-car .section-box, body.theme-forest-car .result-box-item { background: #eaf3ed; border-color: #c4e1cc; color: #192e22; }
+        body.theme-forest-car .box-net-final { background: #2e7d52 !important; color: #ffffff !important; }
+
         /* سيم المعدن الرمادي الجديد */
         body.theme-slate-metallic {
             --bg-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -942,6 +962,7 @@ function openSettingsModal() {
     var settingsHTML = `
         <p style="margin-bottom:12px; font-weight:600;">اختر السيم أو العرض المطلوب:</p>
         <div class="settings-menu-grid">
+            <div class="settings-menu-item" onclick="setTheme('forest-car')">🚗 سيم غابة الزهور والسيارة (مستوحى من صورتك)</div>
             <div class="settings-menu-item" onclick="setTheme('default')">🟢 الوضع الافتراضي</div>
             <div class="settings-menu-item" onclick="setTheme('slate-metallic')">🔘 سيم المعدن الرمادي (Slate Metallic)</div>
             <div class="settings-menu-item" onclick="setTheme('dark')">🌙 الوضع الأسود الداكن</div>
@@ -1002,22 +1023,28 @@ function openTaxConstantsModal() {
     showModal("قانون وجدول شرائح الدخل الضريبي", tableHTML);
 }
 
-/* جدول الشرح وقواعد الاحتساب موضحاً الثابت الضريبي وكيف جاء بالتفصيل */
+/* جدول الشرح وقواعد الاحتساب موضحاً الثابت الضريبي وكيف جاء بالتفصيل (مع أزرار توسيع وتضييق الأعمدة لعرض النص كاملاً) */
 function openTaxConstantExplanationModal() {
     var explanationHTML = `
         <div id="captureTaxTableArea" style="background:var(--card-bg); padding:10px; border-radius:10px;">
-            <p style="margin-bottom:10px; font-weight:bold;">دليل الثابت الضريبي وفروق النسب التفصيلية (Gross-up Constants):</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                <p style="font-weight:bold; margin-bottom:0;">دليل الثابت الضريبي وفروق النسب التفصيلية (Gross-up Constants):</p>
+                <div style="display: flex; gap: 6px;">
+                    <button type="button" class="modal-btn" style="padding: 5px 12px; font-size: 0.9rem;" onclick="zoomExplanationTableIn()" title="توسيع الأعمدة (+)">➕ توسيع الأعمدة</button>
+                    <button type="button" class="modal-btn" style="padding: 5px 12px; font-size: 0.9rem; background: var(--pink-btn-bg);" onclick="zoomExplanationTableOut()" title="تضييق الأعمدة (-)">➖ تضييق الأعمدة</button>
+                </div>
+            </div>
             <p style="font-size:0.85rem; margin-bottom:12px; line-height:1.6;">
-                في حسبة التعلية الجبرية، يتم استخدام "الثابت الضريبي" لكل نطاق وعاء لخصم الفروق التراكمية الناتجة عن الشرائح السابقة المعفاة أو الأقل سعراً، لضمان دقة ضريبة المكافأة. إليك جدول تفصيل الثوابت الضريبية وكيف جاءت كل قيمة:
+                في حسبة التعلية الجبرية، يتم استخدام "الثابت الضريبي" لكل نطاق وعاء لخصم الفروق التراكمية الناتجة عن الشرائح السابقة المعفاة أو الأقل سعراً. إليك جدول تفصيل الثوابت الضريبية وكيف جاءت كل قيمة:
             </p>
             <div class="tax-table-container">
-                <table>
+                <table id="explanationTable" style="table-layout: auto; min-width: 950px;">
                     <thead>
                         <tr>
-                            <th>نطاق الوعاء السنوي <span class="sort-circle-btn" onclick="sortModalTable(0)" title="ترتيب">↕</span></th>
-                            <th>الشريحة الحدية <span class="sort-circle-btn" onclick="sortModalTable(1)" title="ترتيب">↕</span></th>
-                            <th>الثابت الضريبي المعتمد <span class="sort-circle-btn" onclick="sortModalTable(2)" title="ترتيب">↕</span></th>
-                            <th>كيف جاء الثابت الضريبي تفصيلياً (الحسبة والمنشا) <span class="sort-circle-btn" onclick="sortModalTable(3)" title="ترتيب">↕</span></th>
+                            <th style="min-width: 140px;">نطاق الوعاء السنوي <span class="sort-circle-btn" onclick="sortExplanationTable(0)" title="ترتيب">↕</span></th>
+                            <th style="min-width: 100px;">الشريحة الحدية <span class="sort-circle-btn" onclick="sortExplanationTable(1)" title="ترتيب">↕</span></th>
+                            <th style="min-width: 120px;">الثابت الضريبي المعتمد <span class="sort-circle-btn" onclick="sortExplanationTable(2)" title="ترتيب">↕</span></th>
+                            <th style="min-width: 380px; text-align: right; padding-right: 12px;">كيف جاء الثابت الضريبي تفصيلياً (الحسبة والمنشا) <span class="sort-circle-btn" onclick="sortExplanationTable(3)" title="ترتيب">↕</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1025,67 +1052,67 @@ function openTaxConstantExplanationModal() {
                             <td><strong>حتى 40,000 ج</strong></td>
                             <td>0%</td>
                             <td><strong>0 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">شريحة الإعفاء الأساسي بالكامل (40,000 × 0%) = 0 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">شريحة الإعفاء الأساسي بالكامل (40,000 × 0%) = 0 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 40k إلى 55,000 ج</strong></td>
                             <td>10%</td>
                             <td><strong>4,000 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">وفر الشريحة السابقة: (40,000 × (10% - 0%)) = 4,000 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">وفر الشريحة السابقة: (40,000 × (10% - 0%)) = 4,000 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 55k إلى 70,000 ج</strong></td>
                             <td>15%</td>
                             <td><strong>6,750 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">(40,000 × 15%) + (15,000 × (15% - 10%)) = 6,000 + 750 = 6,750 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">(40,000 × 15%) + (15,000 × (15% - 10%)) = 6,000 + 750 = 6,750 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 70k إلى 200,000 ج</strong></td>
                             <td>20%</td>
                             <td><strong>10,250 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">تراكم فروق الشرائح السابقة حتى تجاوز 70 ألف = 10,250 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">تراكم فروق الشرائح السابقة حتى تجاوز 70 ألف = 10,250 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 200k إلى 400,000 ج</strong></td>
                             <td>22.5%</td>
                             <td><strong>15,250 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">تراكم فروق الشرائح حتى شريحة 200 ألف (22.5%) = 15,250 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">تراكم فروق الشرائح حتى شريحة 200 ألف (22.5%) = 15,250 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 400k إلى 600,000 ج</strong></td>
                             <td>25%</td>
                             <td><strong>25,250 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">تراكم فروق الشرائح حتى شريحة 400 ألف (25%) = 25,250 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">تراكم فروق الشرائح حتى شريحة 400 ألف (25%) = 25,250 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 600k إلى 700,000 ج</strong></td>
                             <td>25%</td>
                             <td><strong>21,250 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 600 إلى 700 ألف (تبدأ الشريحة الأولى 10% لـ 55 ألف) = 21,250 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">فئة وعاء 600 إلى 700 ألف (تبدأ الشريحة الأولى 10% لـ 55 ألف) = 21,250 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 700k إلى 800,000 ج</strong></td>
                             <td>25%</td>
                             <td><strong>18,500 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 700 إلى 800 ألف (تبدأ الشريحة الأولى 15% لـ 70 ألف) = 18,500 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">فئة وعاء 700 إلى 800 ألف (تبدأ الشريحة الأولى 15% لـ 70 ألف) = 18,500 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 800k إلى 900,000 ج</strong></td>
                             <td>25%</td>
                             <td><strong>15,000 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 800 إلى 900 ألف (تبدأ الشريحة الأولى 20% لـ 200 ألف) = 15,000 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">فئة وعاء 800 إلى 900 ألف (تبدأ الشريحة الأولى 20% لـ 200 ألف) = 15,000 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>من 900k إلى 1,200,000 ج</strong></td>
                             <td>25%</td>
                             <td><strong>10,000 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">فئة وعاء 900 ألف إلى 1.2 مليون (تبدأ الشريحة الأولى 22.5% لـ 400 ألف) = 10,000 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">فئة وعاء 900 ألف إلى 1.2 مليون (تبدأ الشريحة الأولى 22.5% لـ 400 ألف) = 10,000 ج.</td>
                         </tr>
                         <tr>
                             <td><strong>أكثر من 1,200,000 ج</strong></td>
                             <td>27.5%</td>
                             <td><strong>30,000 ج</strong></td>
-                            <td style="text-align:right; padding:6px 10px;">وفورات الشرائح الكبرى والـ 25% السابقة حتى 1.2 مليون = (1,200,000 × (27.5% - 25%)) = 30,000 ج.</td>
+                            <td style="text-align:right; padding:6px 12px;">وفورات الشرائح الكبرى والـ 25% السابقة حتى 1.2 مليون = (1,200,000 × (27.5% - 25%)) = 30,000 ج.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1094,6 +1121,39 @@ function openTaxConstantExplanationModal() {
     `;
     document.getElementById('modalActionsBar').innerHTML = '<button type="button" class="modal-btn" onclick="saveModalAsImage()">💾 حفظ جدول الثوابت والشرح كصورة كاملة</button>';
     showModal("شرح الثوابت الضريبية وتفصيلها", explanationHTML);
+}
+
+function zoomExplanationTableIn() {
+    var thList = document.querySelectorAll('#explanationTable th');
+    thList.forEach(function(th) {
+        var currentW = th.offsetWidth;
+        th.style.minWidth = (currentW + 30) + 'px';
+    });
+}
+
+function zoomExplanationTableOut() {
+    var thList = document.querySelectorAll('#explanationTable th');
+    thList.forEach(function(th) {
+        var currentW = th.offsetWidth;
+        if (currentW > 80) {
+            th.style.minWidth = (currentW - 30) + 'px';
+        }
+    });
+}
+
+function sortExplanationTable(colIndex) {
+    var table = document.getElementById('explanationTable');
+    if (!table) return;
+    var tbody = table.querySelector('tbody');
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort(function(a, b) {
+        var valA = a.cells[colIndex].innerText.trim();
+        var valB = b.cells[colIndex].innerText.trim();
+        return valA.localeCompare(valB, 'ar');
+    });
+    
+    rows.forEach(function(row) { tbody.appendChild(row); });
 }
 
 function sortModalTable(colIndex) {
@@ -1486,7 +1546,6 @@ function sortBatchTable(columnKey) {
     if (!sortDirections[columnKey]) { sortDirections[columnKey] = 'asc'; } else { sortDirections[columnKey] = sortDirections[columnKey] === 'asc' ? 'desc' : 'asc'; }
     var dir = sortDirections[columnKey];
 
-    // حفظ مواقع التمرير والنافذة الحالية لمنع القفز لأعلى الصفحة
     var modalContentArea = document.getElementById('modalContentArea');
     var modalScrollTop = modalContentArea ? modalContentArea.scrollTop : 0;
     var tableContainer = document.getElementById('batchTableContainerDiv');
@@ -1538,7 +1597,6 @@ function sortBatchTable(columnKey) {
 
     renderBatchTable(batchEmployeesData);
 
-    // استعادة مواقع التمرير بدقة ليفضل واقفاً مكان الفرز تماماً دون تحرك
     var newModalArea = document.getElementById('modalContentArea');
     if (newModalArea) newModalArea.scrollTop = modalScrollTop;
     var newTableContainer = document.getElementById('batchTableContainerDiv');
@@ -1598,7 +1656,6 @@ function updateContactLinks(systemNum) {
         if (waNum.startsWith('0')) {
             waNum = '2' + waNum;
         }
-        // رابط واتساب المباشر الحقيقي
         waBtn.href = "https://api.whatsapp.com/send?phone=" + waNum;
         waBtn.style.display = "flex";
     } else {
@@ -1697,7 +1754,7 @@ function runBatchCalculation() {
 
         var totalAddition = 0;
         var totalWithAddition = gross;
-        var b1Rounded10 = 0;
+        var b1Raw = 0;
         var ratioValue = 0;
         var annualTaxVal = 0;
         var periodTaxVal = 0;
@@ -1724,20 +1781,19 @@ function runBatchCalculation() {
             else if (rhsTarget > 40000) { taxConstant = 4000; marginalComplement = 0.90; }
             else { taxConstant = 0; marginalComplement = 1.00; }
 
-            var b1Raw = (rhsTarget - taxConstant) / marginalComplement;
-            b1Rounded10 = Math.floor(b1Raw / 10) * 10;
-            annualBaseVal = b1Rounded10;
+            b1Raw = (rhsTarget - taxConstant) / marginalComplement;
+            annualBaseVal = b1Raw; // بدون تقريب في الوعاء
 
-            var newTaxBreakdownResult = generateETABreakdownHTML(b1Rounded10, true);
+            var newTaxBreakdownResult = generateETABreakdownHTML(b1Raw, true);
             annualTaxVal = newTaxBreakdownResult.tax;
-            combinedPeriodTaxVal = parseFloat((annualTaxVal * k).toFixed(2));
-            periodTaxVal = parseFloat(Math.max(0, combinedPeriodTaxVal - effectiveT0).toFixed(2));
+            combinedPeriodTaxVal = (annualTaxVal * k); // بدون تقريب في النسب
+            periodTaxVal = Math.max(0, combinedPeriodTaxVal - effectiveT0);
 
             totalAddition = periodTaxVal;
-            totalWithAddition = parseFloat((gross + totalAddition).toFixed(2));
+            totalWithAddition = (gross + totalAddition);
             
             if (totalWithAddition > 0) {
-                ratioValue = parseFloat((totalAddition / totalWithAddition).toFixed(4));
+                ratioValue = (totalAddition / totalWithAddition);
             }
         }
 
@@ -2450,7 +2506,7 @@ function generateETABreakdownHTML(baseAmount, isSubItem) {
 }
 
 function calcETATaxFromTable(rawAnnualIncome) {
-    var inc = Math.floor(rawAnnualIncome / 10) * 10;
+    var inc = rawAnnualIncome; // بدون تقريب لأقرب عشرة جنيهات
     return generateETABreakdownHTML(inc, false).tax;
 }
 
@@ -2558,20 +2614,20 @@ function calculateTaxETA() {
         else { taxConstant = 0; marginalComplement = 1.00; }
 
         var b1Raw = (rhsTarget - taxConstant) / marginalComplement;
-        var b1Rounded10 = Math.floor(b1Raw / 10) * 10;
+        var b1Rounded10 = b1Raw; // بدون تقريب لأقرب 10
         
         var newTaxBreakdownResult = generateETABreakdownHTML(b1Rounded10, true);
         var newAnnualTaxGrossUp = newTaxBreakdownResult.tax;
-        var newPeriodTaxGrossUp = parseFloat((newAnnualTaxGrossUp * k).toFixed(2));
+        var newPeriodTaxGrossUp = (newAnnualTaxGrossUp * k);
 
-        totalAddition = parseFloat(Math.max(0, newPeriodTaxGrossUp - effectiveT0).toFixed(2));
-        totalWithAddition = parseFloat((gross + totalAddition).toFixed(2));
+        totalAddition = Math.max(0, newPeriodTaxGrossUp - effectiveT0);
+        totalWithAddition = (gross + totalAddition);
 
         additionHtml += "<div class='breakdown-item'><span>1. إجمالي الوعاء السابق المجمع:</span><span>" + effectiveB0.toFixed(2) + " ج.م</span></div>";
         additionHtml += "<div class='breakdown-item'><span>2. الضريبة السابقة المنسبة ومعامل المدة:</span><span>" + effectiveT0.toFixed(2) + " ج.م</span></div>";
         additionHtml += "<div class='breakdown-item'><span>3. صافي المكافأة الحالية المنسب سنوياً:</span><span>" + annualizedNetBonus.toFixed(2) + " ج.م</span></div>";
         additionHtml += "<div class='breakdown-item'><span>4. الوعاء الصافي السنوي المستهدف:</span><span>" + rhsTarget.toFixed(2) + " ج.م</span></div>";
-        additionHtml += "<div class='breakdown-item'><span>5. الوعاء السنوي النهائي مقرباً لأقرب 10 جنيهات أقل:</span><span>" + b1Rounded10.toFixed(2) + " ج.م</span></div>";
+        additionHtml += "<div class='breakdown-item'><span>5. الوعاء السنوي النهائي (بدون تقريب):</span><span>" + b1Rounded10.toFixed(2) + " ج.م</span></div>";
         additionHtml += "<div class='breakdown-item'><span>6. ضريبة المكافأة المستقطعة (التعلية النهائية):</span><span>" + totalAddition.toFixed(2) + " ج.م</span></div>";
     } else {
         additionHtml = "<div class='breakdown-item'><span>لا يوجد صافي مكافأة خاضع للتعلية.</span><span>0.00 ج.م</span></div>";
